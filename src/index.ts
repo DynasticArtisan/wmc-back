@@ -2,6 +2,7 @@ import express from "express";
 import morgan from "morgan";
 import { connect } from "mongoose";
 import config from "config";
+import ErrorMiddleware from "./middlewares/error.middleware";
 
 try {
   const app = express();
@@ -9,6 +10,7 @@ try {
   app.use(express.urlencoded({ extended: true }));
   app.use(morgan("dev"));
 
+  app.use(ErrorMiddleware);
   connect(config.get("db"), {}, (err) => {
     if (err) {
       console.log("Соединение с базой данных отсутствует");
