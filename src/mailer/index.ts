@@ -10,15 +10,17 @@ class Mailer {
     });
   }
 
-  async sendNewUserMail(to: string, data: NewUserData) {
+  async sendNewUserMail(to: string, maildata: NewUserData) {
     try {
-      return await this.transport.sendMail({
+      await this.transport.sendMail({
         to,
         subject: 'Данные о вашем аккаунте для приложения "МАРТ"',
-        html: newUserTemplate(data),
+        html: newUserTemplate(maildata),
       });
+      return true;
     } catch (e) {
       console.log(e);
+      return false;
     }
   }
 }

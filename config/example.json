@@ -1,6 +1,7 @@
 {
   "port": 5000,
   "db": "**********",
+  "siteUrl": "localhost:3000",
   "smtp": {
     "host": "smtp.mail.ru",
     "port": 465,

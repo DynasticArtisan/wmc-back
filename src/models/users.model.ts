@@ -18,7 +18,7 @@ const schema = new mongoose.Schema(
       unique: true,
       required: true,
     },
-    username: {
+    login: {
       type: String,
       unique: true,
       required: true,
@@ -58,6 +58,6 @@ schema.virtual("contacts", {
   justOne: true,
 });
 
-const Users = mongoose.model("User", schema);
+const Users = mongoose.model("Users", schema);
 
 export default Users;

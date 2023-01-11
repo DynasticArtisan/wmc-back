@@ -1,4 +1,4 @@
-type Status = 400 | 401 | 402;
+type Status = 400 | 401 | 402 | 404;
 
 export default class ApiError extends Error {
   status;
@@ -9,5 +9,9 @@ export default class ApiError extends Error {
 
   static BadRequest(message: string) {
     return new ApiError(400, message);
+  }
+
+  static NotFound(message: string) {
+    return new ApiError(404, message);
   }
 }

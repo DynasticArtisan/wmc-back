@@ -1,17 +1,25 @@
-import mongoose from "mongoose";
+import mongoose, { Document, ObjectId } from "mongoose";
 
-const schema = new mongoose.Schema({
+export interface ContactsDoc extends Document {
+  userId: ObjectId;
+  email: string;
+  fullname: string;
+  phone: string;
+  birthday: string;
+}
+
+const schema = new mongoose.Schema<ContactsDoc>({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Users",
     required: true,
   },
-  fullName: { type: String, default: "" },
-  contactEmail: { type: String, default: "" },
+  email: { type: String, default: "" },
+  fullname: { type: String, default: "" },
   phone: { type: String, default: "" },
-  dateBirth: { type: String, default: "" },
+  birthday: { type: String, default: "" },
 });
 
-const Contacts = mongoose.model("Contacts", schema);
+const Contacts = mongoose.model<ContactsDoc>("Contacts", schema);
 
 export default Contacts;

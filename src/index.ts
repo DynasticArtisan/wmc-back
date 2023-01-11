@@ -15,7 +15,7 @@ try {
   connect(config.get("db"), {}, (err) => {
     if (err) {
       console.log("Соединение с базой данных отсутствует");
-      return;
+      return process.exit();
     }
     console.log("Соединение с базой данных установлено");
 
