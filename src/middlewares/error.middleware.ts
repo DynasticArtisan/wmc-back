@@ -1,5 +1,5 @@
 import { ErrorRequestHandler, NextFunction, Request, Response } from "express";
-import ApiError from "../exceptions/ApiError";
+import ApiError from "../exceptions";
 
 export default function ErrorMiddleware(
   err: ErrorRequestHandler,
