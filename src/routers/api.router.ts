@@ -1,6 +1,7 @@
 import { Router } from "express";
 import authController from "../controllers/auth.controller";
 import AuthMiddleware from "../middlewares/auth.middleware";
+import SecureMiddleware from "../middlewares/secure.middleware";
 import validate from "../middlewares/zod.middleware";
 import { loginUserReqSchema } from "../schemas/users.schema";
 import ordersRouter from "./orders.router";
@@ -16,7 +17,7 @@ apiRouter.post(
 apiRouter.get("/refresh", authController.refreshHandler);
 apiRouter.delete("/logout", authController.logoutHandler);
 
-apiRouter.use("/users", AuthMiddleware, userRouter);
+apiRouter.use("/users", AuthMiddleware, SecureMiddleware, userRouter);
 apiRouter.use("/orders", AuthMiddleware, ordersRouter);
 
 export default apiRouter;

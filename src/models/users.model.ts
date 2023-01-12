@@ -9,14 +9,19 @@ export enum UserRole {
 }
 
 export enum UserRegion {
-  VN = "Великий Новгород",
+  VN = "ВН",
+  PS = "ПСК",
+  TV = "ТРЬ",
+  VG = "ВГДА",
+  HP = "ЧПЦ",
+  SPB = "СПБ",
 }
 
 interface UserDoc extends Document {
   email: string;
   login: string;
   password: string;
-  region: string;
+  region: UserRegion;
   role: UserRole;
   comparePassword(password: string): Promise<boolean>;
   tokenDTO(): TokenDTO;

@@ -18,6 +18,7 @@ class UsersController {
 
   async getUsersHandler(req: Request, res: Response, next: NextFunction) {
     try {
+      console.log(res.locals);
       const users = await usersServices.getUsers();
       return res.json(users);
     } catch (e) {

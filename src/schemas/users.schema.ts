@@ -1,6 +1,6 @@
 import { isValidObjectId } from "mongoose";
 import { object, string, TypeOf } from "zod";
-import { UserRole } from "../models/users.model";
+import { UserRegion, UserRole } from "../models/users.model";
 
 export const userIdSchema = string().refine(
   (userId) => isValidObjectId(userId),
@@ -24,7 +24,12 @@ export const createUserSchema = object({
       message: "Некорректная роль пользователя",
     }
   ),
-  region: string(),
+  region: string().refine(
+    (region) => Object.values<string>(UserRegion).includes(region),
+    {
+      message: "Некорректный регион пользователя",
+    }
+  ),
   fullname: string(),
   phone: string(),
 });
