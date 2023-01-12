@@ -6,6 +6,21 @@ import Contacts, { ContactsDoc } from "../models/contacts.model";
 import mailer from "../mailer";
 
 class UsersService {
+  createPassword() {
+    return generatePassword(8, false, /[\w\W\d\p]/);
+  }
+  async authorize(login: string, password: string) {
+    const user = await Users.findOne({ login });
+    if (!user) {
+      throw ApiError.BadRequest("Неверные логин или пароль");
+    }
+    const isEqual = await user.comparePassword(password);
+    if (!isEqual) {
+      throw ApiError.BadRequest("Неверные логин или пароль");
+    }
+    return user;
+  }
+
   async createUser({
     email,
     login,
@@ -117,11 +132,6 @@ class UsersService {
     await Contacts.deleteOne({ userId });
     return true;
   }
-
-  createPassword() {
-    return generatePassword(8, false, /[\w\W\d\p]/);
-  }
-  async validatePassword() {}
 }
 
 export default new UsersService();

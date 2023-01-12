@@ -3,31 +3,32 @@ import usersController from "../controllers/users.controller";
 import validate from "../middlewares/zod.middleware";
 import { createUserReqSchema, getUserReqSchema } from "../schemas/users.schema";
 
-const router = Router();
+const usersRouter = Router();
 
-router.post(
-  "/users/",
+usersRouter.post(
+  "/",
   validate(createUserReqSchema),
   usersController.createUserHandler
 );
 
-router.get("/users/", usersController.getUsersHandler);
+usersRouter.get("/", usersController.getUsersHandler);
 
-router.get(
-  "/users/:userId",
+usersRouter.get(
+  "/:userId",
   validate(getUserReqSchema),
   usersController.getUserHandler
 );
 
-router.get(
-  "/users/:userId/contacts",
+usersRouter.get(
+  "/:userId/contacts",
   validate(getUserReqSchema),
   usersController.getUserContactsHandler
 );
-router.delete(
-  "/users/:userId",
+
+usersRouter.delete(
+  "/:userId",
   validate(getUserReqSchema),
   usersController.deleteUserHandler
 );
 
-export default router;
+export default usersRouter;

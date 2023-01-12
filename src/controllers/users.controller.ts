@@ -33,7 +33,7 @@ class UsersController {
     try {
       const { userId } = req.params;
       const user = await usersServices.getUser(userId);
-      res.json(user);
+      return res.json(user);
     } catch (e) {
       next(e);
     }
@@ -47,7 +47,7 @@ class UsersController {
     try {
       const { userId } = req.params;
       const contacts = await usersServices.getUserContacts(userId);
-      res.json(contacts);
+      return res.json(contacts);
     } catch (e) {
       next(e);
     }
@@ -61,7 +61,7 @@ class UsersController {
     try {
       const { userId } = req.params;
       await usersServices.deleteUser(userId);
-      res.json({ message: "Пользователь удален" });
+      return res.json({ message: "Пользователь удален" });
     } catch (e) {
       next(e);
     }

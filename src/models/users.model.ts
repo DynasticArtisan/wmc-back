@@ -1,5 +1,6 @@
-import mongoose from "mongoose";
+import mongoose, { Document } from "mongoose";
 import bcrypt from "bcrypt";
+import { string } from "zod";
 
 export enum UserRole {
   USER = "Пользователь",
@@ -11,7 +12,24 @@ export enum UserRegion {
   VN = "Великий Новгород",
 }
 
-const schema = new mongoose.Schema(
+interface UserDoc extends Document {
+  email: string;
+  login: string;
+  password: string;
+  region: string;
+  role: UserRole;
+  comparePassword(password: string): Promise<boolean>;
+  tokenDTO(): TokenDTO;
+}
+
+export type TokenDTO = {
+  userId: string;
+  login: string;
+  region: string;
+  role: UserRole;
+};
+
+const schema = new mongoose.Schema<UserDoc>(
   {
     email: {
       type: String,
@@ -58,6 +76,19 @@ schema.virtual("contacts", {
   justOne: true,
 });
 
-const Users = mongoose.model("Users", schema);
+schema.method(
+  "comparePassword",
+  async function (trypassword: string): Promise<boolean> {
+    const { password } = this as UserDoc;
+    return await bcrypt.compare(trypassword, password).catch((e) => false);
+  }
+);
+
+schema.method("tokenDTO", function (): TokenDTO {
+  const { _id: userId, login, region, role } = this as UserDoc;
+  return { userId, login, region, role };
+});
+
+const Users = mongoose.model<UserDoc>("Users", schema);
 
 export default Users;

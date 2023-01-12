@@ -10,5 +10,7 @@
       "user": "***********",
       "pass": "***********"
     }
-  }
+  },
+  "accessTokenSecret": "************",
+  "refreshTokenSecret": "************"
 }

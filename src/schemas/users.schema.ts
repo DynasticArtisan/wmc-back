@@ -8,6 +8,13 @@ export const userIdSchema = string().refine(
     message: "Некорректный ID пользователя",
   }
 );
+export const getUserReqSchema = object({
+  params: object({
+    userId: userIdSchema,
+  }),
+});
+export type getUserReqType = TypeOf<typeof getUserReqSchema>;
+
 export const createUserSchema = object({
   email: string(),
   login: string(),
@@ -22,15 +29,17 @@ export const createUserSchema = object({
   phone: string(),
 });
 export type createUserType = TypeOf<typeof createUserSchema>;
-
-export const getUserReqSchema = object({
-  params: object({
-    userId: userIdSchema,
-  }),
-});
-export type getUserReqType = TypeOf<typeof getUserReqSchema>;
-
 export const createUserReqSchema = object({
   body: createUserSchema,
 });
 export type createUserReqType = TypeOf<typeof createUserReqSchema>;
+
+export const loginUserSchema = object({
+  login: string(),
+  password: string(),
+});
+export type loginUserType = TypeOf<typeof loginUserSchema>;
+export const loginUserReqSchema = object({
+  body: loginUserSchema,
+});
+export type loginUserReqType = TypeOf<typeof loginUserReqSchema>;
