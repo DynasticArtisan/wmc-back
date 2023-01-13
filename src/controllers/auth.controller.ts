@@ -1,7 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import ApiError from "../exceptions";
+import { TokenDTO } from "../models/users.model";
 import { loginUserType } from "../schemas/users.schema";
 import sessionsService from "../services/sessions.service";
+import usersServices from "../services/users.services";
 
 class AuthController {
   async loginHandler(
@@ -46,6 +48,16 @@ class AuthController {
         .json({ message: "Сессия завершена" });
     } catch (e) {
       res.clearCookie("refreshToken");
+      next(e);
+    }
+  }
+
+  async getProfile(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { userId } = res.locals.session as TokenDTO;
+      const contacts = await usersServices.getUserContacts(userId);
+      return res.json(contacts);
+    } catch (e) {
       next(e);
     }
   }

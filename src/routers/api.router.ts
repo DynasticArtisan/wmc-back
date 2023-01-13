@@ -16,6 +16,7 @@ apiRouter.post(
 );
 apiRouter.get("/refresh", authController.refreshHandler);
 apiRouter.delete("/logout", authController.logoutHandler);
+apiRouter.get("/profile", AuthMiddleware, authController.getProfile);
 
 apiRouter.use("/users", AuthMiddleware, SecureMiddleware, userRouter);
 apiRouter.use("/orders", AuthMiddleware, ordersRouter);
