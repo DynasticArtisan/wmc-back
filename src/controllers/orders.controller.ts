@@ -10,7 +10,7 @@ class OrdersController {
     next: NextFunction
   ) {
     try {
-      const { userId, region } = res.locals.auth as TokenDTO;
+      const { userId, region } = res.locals.session as TokenDTO;
       const orderData = req.body;
       const order = await ordersService.createOrder(userId, region, orderData);
       return res.json(order);
@@ -21,7 +21,7 @@ class OrdersController {
 
   async getOrders(req: Request, res: Response, next: NextFunction) {
     try {
-      const auth = res.locals.auth as TokenDTO;
+      const auth = res.locals.session as TokenDTO;
       const orders = await ordersService.getOrders(auth);
       res.json(orders);
     } catch (e) {
