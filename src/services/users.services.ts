@@ -116,12 +116,14 @@ class UsersService {
     }
     return true;
   }
-  async updateUserContacts(userId: string, contacts: any) {
-    const user = await Contacts.findOneAndUpdate({ userId }, contacts);
-    if (!user) {
+  async updateUserContacts(userId: string, contactsData: any) {
+    const contacts = await Contacts.findOneAndUpdate({ userId }, contactsData, {
+      new: true,
+    });
+    if (!contacts) {
       throw ApiError.NotFound("Пользователь не найден");
     }
-    return true;
+    return contacts;
   }
 
   async deleteUser(userId: string) {
@@ -129,7 +131,7 @@ class UsersService {
     if (!user) {
       throw ApiError.NotFound("Пользователь не найден");
     }
-    await Contacts.deleteOne({ userId });
+    // await Contacts.deleteOne({ userId }); что будет с заказом без контактов?
     return true;
   }
 }

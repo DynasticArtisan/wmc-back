@@ -35,7 +35,34 @@ class OrdersService {
   }
 
   // TODO:
-  async updateOrder() {}
+  async updateOrder(
+    orderId: string,
+    orderData: createOrderType,
+    { role, region }: TokenDTO
+  ) {
+    switch (role) {
+      case UserRole.ADMIN:
+        const order = await Orders.findByIdAndUpdate(orderId, orderData, {
+          new: true,
+        });
+        if (!order) {
+          throw ApiError.NotFound("Заказ не найден");
+        }
+        return order;
+      case UserRole.MANAGER:
+        const regionOrder = await Orders.findOneAndUpdate(
+          { _id: orderId, region },
+          orderData,
+          { new: true }
+        );
+        if (!regionOrder) {
+          throw ApiError.NotFound("Заказ не найден");
+        }
+        return regionOrder;
+      default:
+        throw ApiError.Forbiden("Недостаточно прав");
+    }
+  }
 
   async deleteOrder(orderId: string) {
     const order = await Orders.findByIdAndDelete(orderId);
