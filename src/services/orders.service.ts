@@ -7,7 +7,8 @@ import usersServices from "./users.services";
 
 class OrdersService {
   async createOrder(userId: string, region: string, data: createOrderType) {
-    const index = await Orders.find({ region }).count();
+    const count = await Orders.find({ region }).count();
+    const index = count + 1;
     const order = await Orders.create({ userId, region, index, ...data });
     const contacts = await usersServices.getUserContacts(userId);
     await sheetsService.writeOrder(order, contacts);

@@ -12,8 +12,6 @@ class SheetsService {
   }
 
   async writeOrder(order: OrderDocument, creator: ContactsDocument) {
-    await this.sheets.loadInfo();
-    const sheet = this.sheets.sheetsByIndex[0];
     const orderDate = new Date().toLocaleDateString();
     const orderNumber = order.region + order.index;
     const orderClient = `
@@ -64,6 +62,8 @@ class SheetsService {
       "Аванс , доплата": orderPayment,
       "Дата внесения денег": orderDate,
     };
+    await this.sheets.loadInfo();
+    const sheet = this.sheets.sheetsByIndex[0];
     const { rowIndex } = await sheet.addRow(newRow);
     await sheet.loadCells(`A${rowIndex}:S${rowIndex}`);
     // сумма заказа

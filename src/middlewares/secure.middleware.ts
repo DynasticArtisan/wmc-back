@@ -8,7 +8,7 @@ export default function SecureMiddleware(
   next: NextFunction
 ) {
   try {
-    const auth = res.locals.auth as TokenDTO;
+    const auth = res.locals.session as TokenDTO;
     if (!auth || auth.role !== UserRole.ADMIN) {
       throw ApiError.Forbiden("Недостаточно прав");
     }

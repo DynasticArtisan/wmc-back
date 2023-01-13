@@ -3,6 +3,7 @@ import { UserRegion } from "./users.model";
 
 export enum OrderStatus {
   active = "В работе",
+  done = "Выполнен",
 }
 
 export interface OrderDocument extends Document {

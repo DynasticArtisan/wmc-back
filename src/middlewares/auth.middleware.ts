@@ -21,7 +21,7 @@ export default async function AuthMiddleware(
         .status(401)
         .json({ message: "Токен доступа устарел", expired: true });
     }
-    res.locals.auth = tokenDTO;
+    res.locals.session = tokenDTO;
     next();
   } catch (e) {
     next(e);

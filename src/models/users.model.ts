@@ -1,6 +1,5 @@
 import mongoose, { Document } from "mongoose";
 import bcrypt from "bcrypt";
-import { string } from "zod";
 
 export enum UserRole {
   USER = "Пользователь",
