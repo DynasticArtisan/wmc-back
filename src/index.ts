@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import { connect } from "mongoose";
@@ -8,6 +9,7 @@ import apiRouter from "./routers/api.router";
 
 try {
   const app = express();
+  app.use(cors({ credentials: true, origin: config.get("siteUrl") }));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
