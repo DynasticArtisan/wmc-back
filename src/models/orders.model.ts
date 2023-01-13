@@ -1,10 +1,64 @@
-import mongoose from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
+import { UserRegion } from "./users.model";
 
 export enum OrderStatus {
   active = "В работе",
 }
 
-const schema = new mongoose.Schema(
+export interface OrderDocument extends Document {
+  index: number;
+  userId: ObjectId;
+  region: UserRegion;
+  information: OrderInformation;
+  services: OrderService[];
+  moreServices: string;
+  payment: OrderPayment;
+  dates: OrderDates;
+  comment?: string;
+  uploadImage?: string;
+  signImage: string;
+  status: OrderStatus;
+}
+
+interface OrderInformation {
+  client: string;
+  clientEmail: string;
+  clientPhone: string;
+  clientAddress: string;
+  deceased: string;
+  cemetery: string;
+  graveDistrict: string;
+  graveRow: string;
+  gravePlace: string;
+}
+
+interface OrderService {
+  title: string;
+  measurement: string;
+  quantity: string;
+  cost: string;
+  price: string;
+}
+
+interface OrderPayment {
+  totalPrice: string;
+  discountValue: string;
+  discountMeasure: string;
+  discount: string;
+  finalPrice: string;
+  prepaymentType: string;
+  prepaymentValue: string;
+  prepaymentMeasure: string;
+  prepayment: string;
+  method: string;
+}
+
+interface OrderDates {
+  startAt: string;
+  endAt: string;
+}
+
+const schema = new mongoose.Schema<OrderDocument>(
   {
     index: { type: Number, require: true, unique: true },
     userId: {
@@ -35,14 +89,20 @@ const schema = new mongoose.Schema(
     ],
     moreServices: { type: String },
     payment: {
-      type: { type: String, require: true },
       totalPrice: { type: String, require: true },
+
+      discountValue: { type: String, require: true },
+      discountMeasure: { type: String, require: true },
       discount: { type: String, require: true },
-      discountType: { type: String, require: true },
-      prepayment: { type: String, require: true },
-      prepaymentType: { type: String, require: true },
+
       finalPrice: { type: String, require: true },
-      paymentMethod: { type: String, require: true },
+
+      prepaymentType: { type: String, require: true },
+      prepaymentValue: { type: String, require: true },
+      prepaymentMeasure: { type: String, require: true },
+      prepayment: { type: String, require: true },
+
+      method: { type: String, require: true },
     },
     dates: {
       startAt: { type: String, require: true },
@@ -58,6 +118,6 @@ const schema = new mongoose.Schema(
   }
 );
 
-const Orders = mongoose.model("Orders", schema);
+const Orders = mongoose.model<OrderDocument>("Orders", schema);
 
 export default Orders;

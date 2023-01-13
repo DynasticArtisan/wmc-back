@@ -2,11 +2,16 @@ import ApiError from "../exceptions";
 import Orders from "../models/orders.model";
 import { TokenDTO, UserRole } from "../models/users.model";
 import { createOrderType } from "../schemas/orders.schema";
+import sheetsService from "./sheets.service";
+import usersServices from "./users.services";
 
 class OrdersService {
   async createOrder(userId: string, region: string, data: createOrderType) {
     const index = await Orders.find({ region }).count();
-    return await Orders.create({ userId, region, index, ...data });
+    const order = await Orders.create({ userId, region, index, ...data });
+    const contacts = await usersServices.getUserContacts(userId);
+    await sheetsService.writeOrder(order, contacts);
+    return order;
   }
 
   async getOrders({ userId, role, region }: TokenDTO) {

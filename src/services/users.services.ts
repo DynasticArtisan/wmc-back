@@ -2,7 +2,7 @@ import ApiError from "../exceptions";
 import generatePassword from "password-generator";
 import Users, { UserRole } from "../models/users.model";
 import { createUserType } from "../schemas/users.schema";
-import Contacts, { ContactsDoc } from "../models/contacts.model";
+import Contacts, { ContactsDocument } from "../models/contacts.model";
 import mailer from "../mailer";
 
 class UsersService {
@@ -62,7 +62,7 @@ class UsersService {
   async getUsers() {
     return await Users.find()
       .select("-password -__v")
-      .populate<{ contacts: ContactsDoc }>({
+      .populate<{ contacts: ContactsDocument }>({
         path: "contacts",
         select: "-_id -__v",
       })

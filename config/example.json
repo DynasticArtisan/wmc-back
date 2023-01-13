@@ -3,7 +3,7 @@
   "db": "**********",
   "siteUrl": "localhost:3000",
   "smtp": {
-    "host": "smtp.mail.ru",
+    "host": "*******",
     "port": 465,
     "secure": true,
     "auth": {
@@ -12,5 +12,20 @@
     }
   },
   "accessTokenSecret": "************",
-  "refreshTokenSecret": "************"
+  "refreshTokenSecret": "************",
+  "googleSheets": {
+    "sheetId": "*************",
+    "credentials": {
+      "type": "*******",
+      "project_id": "*****",
+      "private_key_id": "*****",
+      "private_key": "*****",
+      "client_email": "*******",
+      "client_id": "*********",
+      "auth_uri": "******",
+      "token_uri": "******",
+      "auth_provider_x509_cert_url": "*********",
+      "client_x509_cert_url": "*********"
+    }
+  }
 }

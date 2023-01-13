@@ -1,6 +1,6 @@
 import mongoose, { Document, ObjectId } from "mongoose";
 
-export interface ContactsDoc extends Document {
+export interface ContactsDocument extends Document {
   userId: ObjectId;
   email: string;
   fullname: string;
@@ -8,7 +8,7 @@ export interface ContactsDoc extends Document {
   birthday: string;
 }
 
-const schema = new mongoose.Schema<ContactsDoc>({
+const schema = new mongoose.Schema<ContactsDocument>({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Users",
@@ -20,6 +20,6 @@ const schema = new mongoose.Schema<ContactsDoc>({
   birthday: { type: String, default: "" },
 });
 
-const Contacts = mongoose.model<ContactsDoc>("Contacts", schema);
+const Contacts = mongoose.model<ContactsDocument>("Contacts", schema);
 
 export default Contacts;
