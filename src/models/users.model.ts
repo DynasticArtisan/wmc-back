@@ -23,10 +23,10 @@ interface UserDoc extends Document {
   region: UserRegion;
   role: UserRole;
   comparePassword(password: string): Promise<boolean>;
-  tokenDTO(): TokenDTO;
+  AuthDTO(): Auth;
 }
 
-export type TokenDTO = {
+export type Auth = {
   userId: string;
   login: string;
   region: string;
@@ -88,7 +88,7 @@ schema.method(
   }
 );
 
-schema.method("tokenDTO", function (): TokenDTO {
+schema.method("AuthDTO", function (): Auth {
   const { _id: userId, login, region, role } = this as UserDoc;
   return { userId, login, region, role };
 });

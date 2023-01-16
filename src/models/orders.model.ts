@@ -6,9 +6,14 @@ export enum OrderStatus {
   done = "Выполнен",
 }
 
+export enum OrderType {
+  graveImprovement = "Благоустройство могил",
+}
+
 export interface OrderDocument extends Document {
   index: number;
   userId: ObjectId;
+  type: OrderType;
   region: UserRegion;
   information: OrderInformation;
   services: OrderService[];
@@ -67,6 +72,7 @@ const schema = new mongoose.Schema<OrderDocument>(
       ref: "Users",
       require: true,
     },
+    type: { type: String, require: true },
     region: { type: String, require: true },
     information: {
       client: { type: String, require: true },

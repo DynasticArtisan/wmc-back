@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { TokenDTO } from "../models/users.model";
+import { Auth } from "../models/users.model";
 import { createOrderType, getOrderReqType } from "../schemas/orders.schema";
 import ordersService from "../services/orders.service";
 
@@ -10,7 +10,7 @@ class OrdersController {
     next: NextFunction
   ) {
     try {
-      const { userId, region } = res.locals.session as TokenDTO;
+      const { userId, region } = res.locals.auth as Auth;
       const orderData = req.body;
       const order = await ordersService.createOrder(userId, region, orderData);
       return res.json(order);
@@ -21,7 +21,7 @@ class OrdersController {
 
   async getOrders(req: Request, res: Response, next: NextFunction) {
     try {
-      const auth = res.locals.session as TokenDTO;
+      const auth = res.locals.auth as Auth;
       const orders = await ordersService.getOrders(auth);
       res.json(orders);
     } catch (e) {

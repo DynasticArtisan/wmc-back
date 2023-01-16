@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import ApiError from "../exceptions";
+import { Auth } from "../models/users.model";
 import sessionsService from "../services/sessions.service";
 
 export default async function AuthMiddleware(
@@ -15,13 +16,15 @@ export default async function AuthMiddleware(
     if (!accessToken) {
       return next(ApiError.Unauthorized("Требуется авторизация"));
     }
-    const tokenDTO = await sessionsService.validateAccessToken(accessToken);
-    if (!tokenDTO) {
+    const Auth = (await sessionsService.validateAccessToken(
+      accessToken
+    )) as Auth;
+    if (!Auth) {
       return res
         .status(401)
         .json({ message: "Токен доступа устарел", expired: true });
     }
-    res.locals.session = tokenDTO;
+    res.locals.auth = Auth;
     next();
   } catch (e) {
     next(e);

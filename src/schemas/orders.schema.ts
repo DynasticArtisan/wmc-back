@@ -1,5 +1,6 @@
 import { isValidObjectId } from "mongoose";
 import { array, object, string, TypeOf } from "zod";
+import { OrderType } from "../models/orders.model";
 
 export const orderIdSchema = string().refine(
   (orderId) => isValidObjectId(orderId),
@@ -15,6 +16,12 @@ export const getOrderReqSchema = object({
 export type getOrderReqType = TypeOf<typeof getOrderReqSchema>;
 
 export const createOrderSchema = object({
+  type: string().refine(
+    (type) => Object.values<string>(OrderType).includes(type),
+    {
+      message: "Некорректный тип заказа",
+    }
+  ),
   information: object({
     client: string(),
     clientEmail: string().optional(),

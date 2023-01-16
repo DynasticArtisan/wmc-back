@@ -3,13 +3,13 @@ import config from "config";
 import Sessions from "../models/sessions.model";
 import ApiError from "../exceptions";
 import usersServices from "./users.services";
-import { TokenDTO } from "../models/users.model";
+import { Auth } from "../models/users.model";
 
 class SessionsService {
   async createSession(login: string, password: string) {
     const user = await usersServices.authorize(login, password);
-    const tokenDTO = user.tokenDTO();
-    const tokens = this.generateTokens(tokenDTO);
+    const auth = user.AuthDTO();
+    const tokens = this.generateTokens(auth);
     const session = await Sessions.findOneAndUpdate(
       { userId: user._id },
       { refreshToken: tokens.refreshToken }
@@ -20,7 +20,7 @@ class SessionsService {
         refreshToken: tokens.refreshToken,
       });
     }
-    return { ...tokens, ...tokenDTO };
+    return { ...tokens, ...auth };
   }
 
   async updateSession(refreshToken: string) {
@@ -33,11 +33,11 @@ class SessionsService {
       throw ApiError.NotFound("Сессия не найдена");
     }
     const user = await usersServices.getUser(String(session.userId));
-    const tokenDTO = user.tokenDTO();
-    const tokens = this.generateTokens(tokenDTO);
+    const auth = user.AuthDTO();
+    const tokens = this.generateTokens(auth);
     session.refreshToken = tokens.refreshToken;
     await session.save();
-    return { ...tokens, ...tokenDTO };
+    return { ...tokens, ...auth };
   }
 
   async deleteSession(refreshToken: string) {
@@ -48,11 +48,11 @@ class SessionsService {
     return true;
   }
 
-  generateTokens(TokenDTO: TokenDTO) {
-    const accessToken = jwt.sign(TokenDTO, config.get("accessTokenSecret"), {
+  generateTokens(auth: Auth) {
+    const accessToken = jwt.sign(auth, config.get("accessTokenSecret"), {
       expiresIn: "30s",
     });
-    const refreshToken = jwt.sign(TokenDTO, config.get("refreshTokenSecret"), {
+    const refreshToken = jwt.sign(auth, config.get("refreshTokenSecret"), {
       expiresIn: "30d",
     });
     return {
@@ -60,22 +60,16 @@ class SessionsService {
       refreshToken,
     };
   }
-  async validateAccessToken(accessToken: string): Promise<TokenDTO | null> {
+  async validateAccessToken(accessToken: string): Promise<Auth | null> {
     try {
-      return jwt.verify(
-        accessToken,
-        config.get("accessTokenSecret")
-      ) as TokenDTO;
+      return jwt.verify(accessToken, config.get("accessTokenSecret")) as Auth;
     } catch (e) {
       return null;
     }
   }
-  async validateRefreshToken(refreshToken: string): Promise<TokenDTO | null> {
+  async validateRefreshToken(refreshToken: string): Promise<Auth | null> {
     try {
-      return jwt.verify(
-        refreshToken,
-        config.get("refreshTokenSecret")
-      ) as TokenDTO;
+      return jwt.verify(refreshToken, config.get("refreshTokenSecret")) as Auth;
     } catch (e) {
       return null;
     }

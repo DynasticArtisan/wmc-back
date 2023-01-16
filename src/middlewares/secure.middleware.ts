@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import ApiError from "../exceptions";
-import { TokenDTO, UserRole } from "../models/users.model";
+import { Auth, UserRole } from "../models/users.model";
 
 export default function SecureMiddleware(
   req: Request,
@@ -8,7 +8,7 @@ export default function SecureMiddleware(
   next: NextFunction
 ) {
   try {
-    const auth = res.locals.session as TokenDTO;
+    const auth = res.locals.auth as Auth;
     if (!auth || auth.role !== UserRole.ADMIN) {
       throw ApiError.Forbiden("Недостаточно прав");
     }

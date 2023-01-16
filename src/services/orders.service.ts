@@ -1,6 +1,6 @@
 import ApiError from "../exceptions";
 import Orders from "../models/orders.model";
-import { TokenDTO, UserRole } from "../models/users.model";
+import { Auth, UserRole } from "../models/users.model";
 import { createOrderType } from "../schemas/orders.schema";
 import sheetsService from "./sheets.service";
 import usersServices from "./users.services";
@@ -15,7 +15,7 @@ class OrdersService {
     return order;
   }
 
-  async getOrders({ userId, role, region }: TokenDTO) {
+  async getOrders({ userId, role, region }: Auth) {
     switch (role) {
       case UserRole.ADMIN:
         return await Orders.find();
@@ -38,7 +38,7 @@ class OrdersService {
   async updateOrder(
     orderId: string,
     orderData: createOrderType,
-    { role, region }: TokenDTO
+    { role, region }: Auth
   ) {
     switch (role) {
       case UserRole.ADMIN:
