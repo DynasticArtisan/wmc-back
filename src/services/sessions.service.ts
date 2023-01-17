@@ -49,12 +49,20 @@ class SessionsService {
   }
 
   generateTokens(auth: Auth) {
-    const accessToken = jwt.sign(auth, config.get("accessTokenSecret"), {
-      expiresIn: "30s",
-    });
-    const refreshToken = jwt.sign(auth, config.get("refreshTokenSecret"), {
-      expiresIn: "30d",
-    });
+    const accessToken = jwt.sign(
+      auth,
+      config.get<string>("accessTokenSecret"),
+      {
+        expiresIn: "30s",
+      }
+    );
+    const refreshToken = jwt.sign(
+      auth,
+      config.get<string>("refreshTokenSecret"),
+      {
+        expiresIn: "30d",
+      }
+    );
     return {
       accessToken,
       refreshToken,
@@ -62,14 +70,20 @@ class SessionsService {
   }
   async validateAccessToken(accessToken: string): Promise<Auth | null> {
     try {
-      return jwt.verify(accessToken, config.get("accessTokenSecret")) as Auth;
+      return jwt.verify(
+        accessToken,
+        config.get<string>("accessTokenSecret")
+      ) as Auth;
     } catch (e) {
       return null;
     }
   }
   async validateRefreshToken(refreshToken: string): Promise<Auth | null> {
     try {
-      return jwt.verify(refreshToken, config.get("refreshTokenSecret")) as Auth;
+      return jwt.verify(
+        refreshToken,
+        config.get<string>("refreshTokenSecret")
+      ) as Auth;
     } catch (e) {
       return null;
     }

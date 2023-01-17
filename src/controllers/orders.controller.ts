@@ -1,11 +1,17 @@
 import { NextFunction, Request, Response } from "express";
+import { OrderStatus } from "../models/orders.model";
 import { Auth } from "../models/users.model";
-import { createOrderType, getOrderReqType } from "../schemas/orders.schema";
+import {
+  CreateOrderType,
+  GetOrderReqType,
+  UpdateOrderReqType,
+  UpdateOrderStatusReqType,
+} from "../schemas/orders.schema";
 import ordersService from "../services/orders.service";
 
 class OrdersController {
   async createOrder(
-    req: Request<{}, {}, createOrderType>,
+    req: Request<{}, {}, CreateOrderType>,
     res: Response,
     next: NextFunction
   ) {
@@ -30,7 +36,7 @@ class OrdersController {
   }
 
   async getOrder(
-    req: Request<getOrderReqType["params"]>,
+    req: Request<GetOrderReqType["params"]>,
     res: Response,
     next: NextFunction
   ) {
@@ -43,8 +49,47 @@ class OrdersController {
     }
   }
 
+  async updateOrder(
+    req: Request<UpdateOrderReqType["params"], {}, UpdateOrderReqType["body"]>,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { orderId } = req.params;
+      const orderData = req.body;
+      const auth = res.locals.auth as Auth;
+      await ordersService.updateOrder(orderId, orderData, auth);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async updateOrderStatus(
+    req: Request<
+      UpdateOrderStatusReqType["params"],
+      {},
+      UpdateOrderStatusReqType["body"]
+    >,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { orderId } = req.params;
+      const { status } = req.body;
+      const auth = res.locals.auth as Auth;
+      await ordersService.updateOrderStatus(
+        orderId,
+        status as OrderStatus,
+        auth
+      );
+      return res.json({ message: "Статус заказа обновлен" });
+    } catch (e) {
+      next(e);
+    }
+  }
+
   async deleteOrder(
-    req: Request<getOrderReqType["params"]>,
+    req: Request<GetOrderReqType["params"]>,
     res: Response,
     next: NextFunction
   ) {

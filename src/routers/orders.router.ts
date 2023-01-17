@@ -3,24 +3,43 @@ import ordersController from "../controllers/orders.controller";
 import SecureMiddleware from "../middlewares/secure.middleware";
 import validate from "../middlewares/zod.middleware";
 import {
-  createOrderReqSchema,
-  getOrderReqSchema,
+  CreateOrderReqSchema,
+  GetOrderReqSchema,
+  UpdateOrderReqSchema,
+  UpdateOrderStatusReqSchema,
 } from "../schemas/orders.schema";
 
 const ordersRouter = Router();
 
 ordersRouter.post(
   "/",
-  validate(createOrderReqSchema),
+  validate(CreateOrderReqSchema),
   ordersController.createOrder
 );
 
 ordersRouter.get("/", ordersController.getOrders);
 
+ordersRouter.get(
+  "/:orderId",
+  validate(GetOrderReqSchema),
+  ordersController.getOrder
+);
+
+ordersRouter.put(
+  "/:orderId",
+  validate(UpdateOrderReqSchema),
+  ordersController.updateOrder
+);
+ordersRouter.patch(
+  "/:orderId/status",
+  validate(UpdateOrderStatusReqSchema),
+  ordersController.updateOrderStatus
+);
+
 ordersRouter.delete(
   "/:orderId",
   SecureMiddleware,
-  validate(getOrderReqSchema),
+  validate(GetOrderReqSchema),
   ordersController.deleteOrder
 );
 

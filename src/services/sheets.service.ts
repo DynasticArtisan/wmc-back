@@ -1,8 +1,16 @@
-import { GoogleSpreadsheet } from "google-spreadsheet";
+import {
+  GoogleSpreadsheet,
+  ServiceAccountCredentials,
+} from "google-spreadsheet";
 import { ContactsDocument } from "../models/contacts.model";
 import { OrderDocument } from "../models/orders.model";
 import config from "config";
-const { sheetId, credentials } = config.get("googleSheets") as any;
+
+interface SheetConfig {
+  sheetId: string;
+  credentials: ServiceAccountCredentials;
+}
+const { sheetId, credentials } = config.get<SheetConfig>("googleSheets");
 
 class SheetsService {
   sheets;

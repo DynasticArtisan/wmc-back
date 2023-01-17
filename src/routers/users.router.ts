@@ -1,13 +1,18 @@
 import { Router } from "express";
 import usersController from "../controllers/users.controller";
 import validate from "../middlewares/zod.middleware";
-import { createUserReqSchema, getUserReqSchema } from "../schemas/users.schema";
+import {
+  CreateUserReqSchema,
+  GetUserReqSchema,
+  UpdateUserRegionReqSchema,
+  UpdateUserRoleReqSchema,
+} from "../schemas/users.schema";
 
 const usersRouter = Router();
 
 usersRouter.post(
   "/",
-  validate(createUserReqSchema),
+  validate(CreateUserReqSchema),
   usersController.createUserHandler
 );
 
@@ -15,19 +20,30 @@ usersRouter.get("/", usersController.getUsersHandler);
 
 usersRouter.get(
   "/:userId",
-  validate(getUserReqSchema),
+  validate(GetUserReqSchema),
   usersController.getUserHandler
 );
 
 usersRouter.get(
   "/:userId/contacts",
-  validate(getUserReqSchema),
+  validate(GetUserReqSchema),
   usersController.getUserContactsHandler
+);
+
+usersRouter.patch(
+  "/:userId/role",
+  validate(UpdateUserRoleReqSchema),
+  usersController.updateUserRoleHandler
+);
+usersRouter.patch(
+  "/:userId/region",
+  validate(UpdateUserRegionReqSchema),
+  usersController.updateUserRegionHandler
 );
 
 usersRouter.delete(
   "/:userId",
-  validate(getUserReqSchema),
+  validate(GetUserReqSchema),
   usersController.deleteUserHandler
 );
 

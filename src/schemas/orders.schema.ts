@@ -1,21 +1,21 @@
 import { isValidObjectId } from "mongoose";
 import { array, object, string, TypeOf } from "zod";
-import { OrderType } from "../models/orders.model";
+import { OrderStatus, OrderType } from "../models/orders.model";
 
-export const orderIdSchema = string().refine(
+export const OrderIdSchema = string().refine(
   (orderId) => isValidObjectId(orderId),
   {
     message: "Некорректный ID заказа",
   }
 );
-export const getOrderReqSchema = object({
+export const GetOrderReqSchema = object({
   params: object({
-    orderId: orderIdSchema,
+    orderId: OrderIdSchema,
   }),
 });
-export type getOrderReqType = TypeOf<typeof getOrderReqSchema>;
+export type GetOrderReqType = TypeOf<typeof GetOrderReqSchema>;
 
-export const createOrderSchema = object({
+export const CreateOrderSchema = object({
   type: string().refine(
     (type) => Object.values<string>(OrderType).includes(type),
     {
@@ -63,8 +63,31 @@ export const createOrderSchema = object({
   uploadImage: string().optional(),
   signImage: string(),
 });
-export type createOrderType = TypeOf<typeof createOrderSchema>;
+export type CreateOrderType = TypeOf<typeof CreateOrderSchema>;
 
-export const createOrderReqSchema = object({
-  body: createOrderSchema,
+export const CreateOrderReqSchema = object({
+  body: CreateOrderSchema,
 });
+
+export const UpdateOrderReqSchema = object({
+  params: object({
+    orderId: OrderIdSchema,
+  }),
+  body: CreateOrderSchema,
+});
+export type UpdateOrderReqType = TypeOf<typeof UpdateOrderReqSchema>;
+
+export const UpdateOrderStatusReqSchema = object({
+  params: object({
+    orderId: OrderIdSchema,
+  }),
+  body: object({
+    status: string().refine(
+      (status) => Object.values<string>(OrderStatus).includes(status),
+      "Некорректный статус"
+    ),
+  }),
+});
+export type UpdateOrderStatusReqType = TypeOf<
+  typeof UpdateOrderStatusReqSchema
+>;

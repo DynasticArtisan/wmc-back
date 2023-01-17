@@ -2,10 +2,12 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
-import { connect } from "mongoose";
+import mongoose from "mongoose";
 import config from "config";
 import ErrorMiddleware from "./middlewares/error.middleware";
 import apiRouter from "./routers/api.router";
+const PORT = config.get<number>("port");
+const DB = config.get<string>("db");
 
 try {
   const app = express();
@@ -16,16 +18,16 @@ try {
   app.use(morgan("dev"));
   app.use("/api", apiRouter);
   app.use(ErrorMiddleware);
-  connect(config.get("db"), {}, (err) => {
+
+  mongoose.set("strictQuery", true);
+  mongoose.connect(DB, {}, (err) => {
     if (err) {
       console.log("Соединение с базой данных отсутствует");
       return process.exit();
     }
     console.log("Соединение с базой данных установлено");
-
-    const port = config.get("port");
-    app.listen(port, () => {
-      console.log("Сервер запущен на порту", port);
+    app.listen(PORT, () => {
+      console.log("Сервер запущен на порту", PORT);
     });
   });
 } catch (e) {

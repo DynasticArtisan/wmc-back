@@ -1,12 +1,12 @@
 import ApiError from "../exceptions";
-import Orders from "../models/orders.model";
+import Orders, { OrderStatus } from "../models/orders.model";
 import { Auth, UserRole } from "../models/users.model";
-import { createOrderType } from "../schemas/orders.schema";
+import { CreateOrderType } from "../schemas/orders.schema";
 import sheetsService from "./sheets.service";
 import usersServices from "./users.services";
 
 class OrdersService {
-  async createOrder(userId: string, region: string, data: createOrderType) {
+  async createOrder(userId: string, region: string, data: CreateOrderType) {
     const count = await Orders.find({ region }).count();
     const index = count + 1;
     const order = await Orders.create({ userId, region, index, ...data });
@@ -37,7 +37,7 @@ class OrdersService {
   // TODO:
   async updateOrder(
     orderId: string,
-    orderData: createOrderType,
+    orderData: CreateOrderType,
     { role, region }: Auth
   ) {
     switch (role) {
@@ -53,6 +53,39 @@ class OrdersService {
         const regionOrder = await Orders.findOneAndUpdate(
           { _id: orderId, region },
           orderData,
+          { new: true }
+        );
+        if (!regionOrder) {
+          throw ApiError.NotFound("Заказ не найден");
+        }
+        return regionOrder;
+      default:
+        throw ApiError.Forbiden("Недостаточно прав");
+    }
+  }
+
+  async updateOrderStatus(
+    orderId: string,
+    status: OrderStatus,
+    { role, region }: Auth
+  ) {
+    switch (role) {
+      case UserRole.ADMIN:
+        const order = await Orders.findByIdAndUpdate(
+          orderId,
+          { status },
+          {
+            new: true,
+          }
+        );
+        if (!order) {
+          throw ApiError.NotFound("Заказ не найден");
+        }
+        return order;
+      case UserRole.MANAGER:
+        const regionOrder = await Orders.findOneAndUpdate(
+          { _id: orderId, region },
+          { status },
           { new: true }
         );
         if (!regionOrder) {

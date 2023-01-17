@@ -1,12 +1,16 @@
 import { NextFunction, Request, Response } from "express";
 import { Auth } from "../models/users.model";
-import { loginUserType } from "../schemas/users.schema";
+import {
+  AuthorizeUserType,
+  UpdateMyPasswordReqType,
+  UserContactsType,
+} from "../schemas/users.schema";
 import sessionsService from "../services/sessions.service";
 import usersServices from "../services/users.services";
 
 class AuthController {
   async loginHandler(
-    req: Request<{}, {}, loginUserType>,
+    req: Request<{}, {}, AuthorizeUserType>,
     res: Response,
     next: NextFunction
   ) {
@@ -51,11 +55,41 @@ class AuthController {
     }
   }
 
-  async getProfile(req: Request, res: Response, next: NextFunction) {
+  async getContactsHandler(req: Request, res: Response, next: NextFunction) {
     try {
       const { userId } = res.locals.auth as Auth;
       const contacts = await usersServices.getUserContacts(userId);
       return res.json(contacts);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async updateContactsHandler(
+    req: Request<{}, {}, UserContactsType>,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { userId } = res.locals.auth as Auth;
+      const contacts = req.body;
+      await usersServices.updateUserContacts(userId, contacts);
+      res.json({ message: "Контакты обновлены" });
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async updatePasswordHandler(
+    req: Request<{}, {}, UpdateMyPasswordReqType["body"]>,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { userId } = res.locals.auth as Auth;
+      const { password, newPassword } = req.body;
+      await usersServices.updateUserPassword(userId, password, newPassword);
+      return res.json({ message: "Пароль обновлен" });
     } catch (e) {
       next(e);
     }

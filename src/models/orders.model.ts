@@ -13,8 +13,9 @@ export enum OrderType {
 export interface OrderDocument extends Document {
   index: number;
   userId: ObjectId;
-  type: OrderType;
   region: UserRegion;
+  status: OrderStatus;
+  type: OrderType;
   information: OrderInformation;
   services: OrderService[];
   moreServices: string;
@@ -23,7 +24,6 @@ export interface OrderDocument extends Document {
   comment?: string;
   uploadImage?: string;
   signImage: string;
-  status: OrderStatus;
 }
 
 interface OrderInformation {

@@ -1,7 +1,7 @@
 import ApiError from "../exceptions";
 import generatePassword from "password-generator";
-import Users, { UserRole } from "../models/users.model";
-import { createUserType } from "../schemas/users.schema";
+import Users, { UserRegion, UserRole } from "../models/users.model";
+import { CreateUserType, UserContactsType } from "../schemas/users.schema";
 import Contacts, { ContactsDocument } from "../models/contacts.model";
 import mailer from "../mailer";
 
@@ -9,6 +9,7 @@ class UsersService {
   createPassword() {
     return generatePassword(8, false, /[\w\W\d\p]/);
   }
+
   async authorize(login: string, password: string) {
     const user = await Users.findOne({ login });
     if (!user) {
@@ -28,7 +29,7 @@ class UsersService {
     role,
     fullname,
     phone,
-  }: createUserType) {
+  }: CreateUserType) {
     const sameEmailUser = await Users.findOne({ email });
     if (sameEmailUser) {
       throw ApiError.BadRequest("Пользователь с такой почтой уже существует.");
@@ -91,39 +92,56 @@ class UsersService {
     if (!user) {
       throw ApiError.NotFound("Пользователь не найден");
     }
-    return true;
+    return;
   }
-  async updateUserPassword(userId: string) {
+  async updateUserPassword(
+    userId: string,
+    password: string,
+    newPassword: string
+  ) {
     const user = await Users.findById(userId);
     if (!user) {
       throw ApiError.NotFound("Пользователь не найден");
     }
-    user.password = this.createPassword();
+    const isEqual = await user.comparePassword(password);
+    if (!isEqual) {
+      throw ApiError.Forbiden("Неверный пароль");
+    }
+    user.password = newPassword;
     await user.save();
-    return true;
+    return;
   }
+  async resetUserPassword(userId: string, token: string, newPassword: string) {
+    const user = await Users.findById(userId);
+    if (!user) {
+      throw ApiError.NotFound("Пользователь не найден");
+    }
+    // validate token
+    user.password = newPassword;
+    await user.save();
+    return;
+  }
+
   async updateUserRole(userId: string, role: UserRole) {
     const user = await Users.findByIdAndUpdate(userId, { role });
     if (!user) {
       throw ApiError.NotFound("Пользователь не найден");
     }
-    return true;
+    return;
   }
-  async updateUserRegion(userId: string, region: string) {
+  async updateUserRegion(userId: string, region: UserRegion) {
     const user = await Users.findByIdAndUpdate(userId, { region });
     if (!user) {
       throw ApiError.NotFound("Пользователь не найден");
     }
-    return true;
+    return;
   }
-  async updateUserContacts(userId: string, contactsData: any) {
-    const contacts = await Contacts.findOneAndUpdate({ userId }, contactsData, {
-      new: true,
-    });
+  async updateUserContacts(userId: string, userContacts: UserContactsType) {
+    const contacts = await Contacts.findOneAndUpdate({ userId }, userContacts);
     if (!contacts) {
       throw ApiError.NotFound("Пользователь не найден");
     }
-    return contacts;
+    return;
   }
 
   async deleteUser(userId: string) {

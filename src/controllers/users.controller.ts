@@ -1,15 +1,21 @@
 import { NextFunction, Request, Response } from "express";
-import { createUserType, getUserReqType } from "../schemas/users.schema";
+import { UserRegion, UserRole } from "../models/users.model";
+import {
+  CreateUserType,
+  GetUserReqType,
+  UpdateUserRegionReqType,
+  UpdateUserRoleReqType,
+} from "../schemas/users.schema";
 import usersServices from "../services/users.services";
 
 class UsersController {
   async createUserHandler(
-    req: Request<{}, {}, createUserType>,
+    req: Request<{}, {}, CreateUserType>,
     res: Response,
     next: NextFunction
   ) {
     try {
-      const user = await usersServices.createUser(req.body);
+      await usersServices.createUser(req.body);
       return res.status(201).json({ message: "Пользователь создан" });
     } catch (e) {
       next(e);
@@ -26,7 +32,7 @@ class UsersController {
   }
 
   async getUserHandler(
-    req: Request<getUserReqType["params"]>,
+    req: Request<GetUserReqType["params"]>,
     res: Response,
     next: NextFunction
   ) {
@@ -40,7 +46,7 @@ class UsersController {
   }
 
   async getUserContactsHandler(
-    req: Request<getUserReqType["params"]>,
+    req: Request<GetUserReqType["params"]>,
     res: Response,
     next: NextFunction
   ) {
@@ -53,8 +59,46 @@ class UsersController {
     }
   }
 
+  async updateUserRoleHandler(
+    req: Request<
+      UpdateUserRoleReqType["params"],
+      {},
+      UpdateUserRoleReqType["body"]
+    >,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { userId } = req.params;
+      const { role } = req.body;
+      await usersServices.updateUserRole(userId, role as UserRole);
+      return res.json({ message: "Роль пользователя изменена" });
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async updateUserRegionHandler(
+    req: Request<
+      UpdateUserRegionReqType["params"],
+      {},
+      UpdateUserRegionReqType["body"]
+    >,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { userId } = req.params;
+      const { region } = req.body;
+      await usersServices.updateUserRegion(userId, region as UserRegion);
+      return res.json({ message: "Регион пользователя изменен" });
+    } catch (e) {
+      next(e);
+    }
+  }
+
   async deleteUserHandler(
-    req: Request<getUserReqType["params"]>,
+    req: Request<GetUserReqType["params"]>,
     res: Response,
     next: NextFunction
   ) {
