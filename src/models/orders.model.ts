@@ -10,6 +10,22 @@ export enum OrderType {
   graveImprovement = "Благоустройство могил",
 }
 
+export enum PaymentMeasure {
+  percent = "%",
+  currency = "руб",
+}
+
+export enum PrepaymentType {
+  prepayment = "авансовый платёж",
+  fullPrepayment = "полный расчёт",
+  withoutPrepayment = "без предоплаты",
+}
+
+export enum PaymentMethod {
+  card = "банковской картой",
+  cash = "наличными",
+}
+
 export interface OrderDocument extends Document {
   index: number;
   userId: ObjectId;
@@ -41,22 +57,22 @@ interface OrderInformation {
 interface OrderService {
   title: string;
   measurement: string;
-  quantity: string;
-  cost: string;
-  price: string;
+  quantity: number;
+  cost: number;
+  price: number;
 }
 
 interface OrderPayment {
-  totalPrice: string;
-  discountValue: string;
-  discountMeasure: string;
-  discount: string;
-  finalPrice: string;
-  prepaymentType: string;
-  prepaymentValue: string;
-  prepaymentMeasure: string;
-  prepayment: string;
-  method: string;
+  totalPrice: number;
+  discountValue: number;
+  discountMeasure: PaymentMeasure;
+  discount: number;
+  finalPrice: number;
+  prepaymentType: PrepaymentType;
+  prepaymentValue: number;
+  prepaymentMeasure: PaymentMeasure;
+  prepayment: number;
+  method: PaymentMethod;
 }
 
 interface OrderDates {

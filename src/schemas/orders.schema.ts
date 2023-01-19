@@ -1,6 +1,12 @@
 import { isValidObjectId } from "mongoose";
 import { array, number, object, string, TypeOf } from "zod";
-import { OrderStatus, OrderType } from "../models/orders.model";
+import {
+  OrderStatus,
+  OrderType,
+  PaymentMeasure,
+  PaymentMethod,
+  PrepaymentType,
+} from "../models/orders.model";
 
 export const OrderIdSchema = string().refine(
   (orderId) => isValidObjectId(orderId),
@@ -16,7 +22,10 @@ export const GetOrderReqSchema = object({
 export type GetOrderReqType = TypeOf<typeof GetOrderReqSchema>;
 
 export const CreateOrderSchema = object({
-  type: string(),
+  type: string().refine(
+    (type) => Object.values<string>(OrderType).includes(type),
+    "Некорректный тип заказа"
+  ),
   information: object({
     client: string(),
     clientEmail: string().optional(),
@@ -41,14 +50,26 @@ export const CreateOrderSchema = object({
   payment: object({
     totalPrice: number(),
     discountValue: number(),
-    discountMeasure: string(),
+    discountMeasure: string().refine(
+      (measure) => Object.values<string>(PaymentMeasure).includes(measure),
+      "Некорректные еденицы измерения"
+    ),
     discount: number(),
     finalPrice: number(),
-    prepaymentType: string(),
+    prepaymentType: string().refine(
+      (type) => Object.values<string>(PrepaymentType).includes(type),
+      "Некорректный тип предолаты"
+    ),
     prepaymentValue: number(),
-    prepaymentMeasure: string(),
+    prepaymentMeasure: string().refine(
+      (measure) => Object.values<string>(PaymentMeasure).includes(measure),
+      "Некорректные еденицы измерения"
+    ),
     prepayment: number(),
-    method: string(),
+    method: string().refine(
+      (method) => Object.values<string>(PaymentMethod).includes(method),
+      "Некорректный метод оплаты"
+    ),
   }),
   dates: object({
     startAt: string(),
