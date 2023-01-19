@@ -1,5 +1,5 @@
 import { isValidObjectId } from "mongoose";
-import { array, object, string, TypeOf } from "zod";
+import { array, number, object, string, TypeOf } from "zod";
 import { OrderStatus, OrderType } from "../models/orders.model";
 
 export const OrderIdSchema = string().refine(
@@ -16,12 +16,7 @@ export const GetOrderReqSchema = object({
 export type GetOrderReqType = TypeOf<typeof GetOrderReqSchema>;
 
 export const CreateOrderSchema = object({
-  type: string().refine(
-    (type) => Object.values<string>(OrderType).includes(type),
-    {
-      message: "Некорректный тип заказа",
-    }
-  ),
+  type: string(),
   information: object({
     client: string(),
     clientEmail: string().optional(),
@@ -37,22 +32,22 @@ export const CreateOrderSchema = object({
     object({
       title: string(),
       measurement: string(),
-      quantity: string(),
-      cost: string(),
-      price: string(),
+      quantity: number(),
+      cost: number(),
+      price: number(),
     })
   ),
   moreServices: string().optional(),
   payment: object({
-    totalPrice: string(),
-    discountValue: string(),
+    totalPrice: number(),
+    discountValue: number(),
     discountMeasure: string(),
-    discount: string(),
-    finalPrice: string(),
+    discount: number(),
+    finalPrice: number(),
     prepaymentType: string(),
-    prepaymentValue: string(),
+    prepaymentValue: number(),
     prepaymentMeasure: string(),
-    prepayment: string(),
+    prepayment: number(),
     method: string(),
   }),
   dates: object({
