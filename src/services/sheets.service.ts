@@ -6,6 +6,27 @@ import { ContactsDocument } from "../models/contacts.model";
 import { OrderDocument } from "../models/orders.model";
 import config from "config";
 
+enum SheetHeaders {
+  orderDate = "Дата Заказа",
+  orderNumber = "№ заказа",
+  orderClient = "фио заказчика/ТЕЛЕФОН",
+  orderDeceased = "Адрес Захоронения,ФИО умершего",
+  orderGrave = "УЧАСТОК/РЯД/МЕСТО",
+  orderCreator = "МАП",
+  orderSumm = "Общая сумма заказа",
+  orderServices = "производимые работы",
+  orderPayment = "Аванс , доплата",
+  orderPaydate = "Дата внесения денег",
+  orderDept = "Сумма долга",
+  rawCost = "ЦПА+РАСХОДНИК",
+  materialsCost = "себестоимость ограды+скамейка+стол+плитка+крошка",
+  laborCost = "Цена Бетонных работ",
+  concreteCost = "МАП (20%) бетон",
+  departureCost = "выезд",
+  installCost = "Оплата установщикам (20%)",
+  orderProfit = "выручка",
+}
+
 interface SheetConfig {
   sheetId: string;
   credentials: ServiceAccountCredentials;
@@ -59,16 +80,16 @@ class SheetsService {
     );
     const orderPayment = order.payment.prepayment;
     const newRow = {
-      "Дата Заказа": orderDate,
-      "№ заказа": orderNumber,
-      "фио заказчика/ТЕЛЕФОН": orderClient,
-      "Адрес Захоронения,ФИО умершего": orderDeceased,
-      "УЧАСТОК/РЯД/МЕСТО": orderGrave,
-      МАП: orderCreator,
-      "Общая сумма заказа": orderSumm,
-      "производимые работы": orderServices,
-      "Аванс , доплата": orderPayment,
-      "Дата внесения денег": orderDate,
+      [SheetHeaders.orderDate]: orderDate,
+      [SheetHeaders.orderNumber]: orderNumber,
+      [SheetHeaders.orderClient]: orderClient,
+      [SheetHeaders.orderDeceased]: orderDeceased,
+      [SheetHeaders.orderGrave]: orderGrave,
+      [SheetHeaders.orderCreator]: orderCreator,
+      [SheetHeaders.orderSumm]: orderSumm,
+      [SheetHeaders.orderServices]: orderServices,
+      [SheetHeaders.orderPayment]: orderPayment,
+      [SheetHeaders.orderPaydate]: orderDate,
     };
     await this.sheets.loadInfo();
     const sheet = this.sheets.sheetsByIndex[0];
@@ -109,6 +130,72 @@ class SheetsService {
     ).formula = `=СУММ(G${rowIndex}-J${rowIndex}-N${rowIndex}-O${rowIndex}-Q${rowIndex})`;
     await sheet.saveUpdatedCells();
     return rowIndex;
+  }
+
+  async updateOrder(order: OrderDocument) {
+    const orderNumber = order.region + order.index;
+    const orderClient = `
+      ${order.information.client}\n
+      ${order.information.clientPhone}\n
+      ${order.information.clientAddress}\n
+      ${order.information.clientEmail}
+    `;
+    const orderDeceased = `
+      ${order.information.cemetery}\n
+      ${order.information.deceased}
+    `;
+    const orderGrave = `
+      Участок: ${order.information.graveDistrict}\n
+      Ряд: ${order.information.graveRow}\n
+      Место: ${order.information.gravePlace}
+    `;
+    const orderSumm = order.payment.finalPrice;
+    const orderServices = order.services.reduce(
+      (string, { title, quantity, measurement, cost, price }) => {
+        return (
+          string +
+          `
+          Услуга: "${title}";\n
+          Размер: ${quantity} ${measurement}\n
+          Цена за ед: ${cost}руб;\n
+          Цена: ${price}руб;\n\n
+        `
+        );
+      },
+      ""
+    );
+    const orderPayment = order.payment.prepayment;
+
+    await this.sheets.loadInfo();
+    const rows = await this.sheets.sheetsByIndex[0].getRows();
+    const row = rows.find(
+      (row) => row[SheetHeaders.orderNumber] == orderNumber
+    );
+    if (row) {
+      row[SheetHeaders.orderClient] = orderClient;
+      row[SheetHeaders.orderDeceased] = orderDeceased;
+      row[SheetHeaders.orderGrave] = orderGrave;
+      row[SheetHeaders.orderSumm] = orderSumm;
+      row[SheetHeaders.orderServices] = orderServices;
+      row[SheetHeaders.orderPayment] = orderPayment;
+      await row.save();
+      return true;
+    }
+    return false;
+  }
+
+  async deleteOrder(order: OrderDocument) {
+    const orderNumber = order.region + order.index;
+    await this.sheets.loadInfo();
+    const rows = await this.sheets.sheetsByIndex[0].getRows();
+    const row = rows.find(
+      (row) => row[SheetHeaders.orderNumber] == orderNumber
+    );
+    if (row) {
+      await row.delete();
+      return true;
+    }
+    return false;
   }
 }
 export default new SheetsService();

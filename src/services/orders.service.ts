@@ -7,8 +7,8 @@ import usersServices from "./users.services";
 
 class OrdersService {
   async createOrder(userId: string, region: string, data: CreateOrderType) {
-    const count = await Orders.find({ region }).count();
-    const index = count + 1;
+    const lastOrder = await Orders.findOne({ region }).sort("index");
+    const index = lastOrder ? lastOrder.index + 1 : 1;
     const order = await Orders.create({ userId, region, index, ...data });
     const contacts = await usersServices.getUserContacts(userId);
     await sheetsService.writeOrder(order, contacts);
@@ -34,7 +34,6 @@ class OrdersService {
     return order;
   }
 
-  // TODO:
   async updateOrder(
     orderId: string,
     orderData: UpdateOrderType,
@@ -48,6 +47,7 @@ class OrdersService {
         if (!order) {
           throw ApiError.NotFound("Заказ не найден");
         }
+        await sheetsService.updateOrder(order);
         return order;
       case UserRole.MANAGER:
         const regionOrder = await Orders.findOneAndUpdate(
@@ -58,6 +58,7 @@ class OrdersService {
         if (!regionOrder) {
           throw ApiError.NotFound("Заказ не найден");
         }
+        await sheetsService.updateOrder(regionOrder);
         return regionOrder;
       default:
         throw ApiError.Forbiden("Недостаточно прав");
@@ -102,6 +103,7 @@ class OrdersService {
     if (!order) {
       throw ApiError.NotFound("Заказ не найден");
     }
+    await sheetsService.deleteOrder(order);
     return order;
   }
 }
