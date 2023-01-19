@@ -81,6 +81,12 @@ export const CreateOrderSchema = object({
 });
 export type CreateOrderType = TypeOf<typeof CreateOrderSchema>;
 
+export const UpdateOrderSchema = CreateOrderSchema.omit({
+  type: true,
+  signImage: true,
+});
+export type UpdateOrderType = TypeOf<typeof UpdateOrderSchema>;
+
 export const CreateOrderReqSchema = object({
   body: CreateOrderSchema,
 });
@@ -89,7 +95,7 @@ export const UpdateOrderReqSchema = object({
   params: object({
     orderId: OrderIdSchema,
   }),
-  body: CreateOrderSchema,
+  body: UpdateOrderSchema,
 });
 export type UpdateOrderReqType = TypeOf<typeof UpdateOrderReqSchema>;
 

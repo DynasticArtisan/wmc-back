@@ -1,7 +1,7 @@
 import ApiError from "../exceptions";
 import Orders, { OrderStatus } from "../models/orders.model";
 import { Auth, UserRole } from "../models/users.model";
-import { CreateOrderType } from "../schemas/orders.schema";
+import { CreateOrderType, UpdateOrderType } from "../schemas/orders.schema";
 import sheetsService from "./sheets.service";
 import usersServices from "./users.services";
 
@@ -37,7 +37,7 @@ class OrdersService {
   // TODO:
   async updateOrder(
     orderId: string,
-    orderData: CreateOrderType,
+    orderData: UpdateOrderType,
     { role, region }: Auth
   ) {
     switch (role) {

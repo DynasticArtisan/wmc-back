@@ -30,6 +30,7 @@ ordersRouter.put(
   validate(UpdateOrderReqSchema),
   ordersController.updateOrder
 );
+
 ordersRouter.patch(
   "/:orderId/status",
   validate(UpdateOrderStatusReqSchema),
