@@ -105,25 +105,25 @@ const schema = new mongoose.Schema<OrderDocument>(
       {
         title: { type: String, require: true },
         measurement: { type: String, require: true },
-        quantity: { type: String, require: true },
-        cost: { type: String, require: true },
-        price: { type: String, require: true },
+        quantity: { type: Number, require: true },
+        cost: { type: Number, require: true },
+        price: { type: Number, require: true },
       },
     ],
     moreServices: { type: String },
     payment: {
-      totalPrice: { type: String, require: true },
+      totalPrice: { type: Number, require: true },
 
-      discountValue: { type: String, require: true },
+      discountValue: { type: Number, require: true },
       discountMeasure: { type: String, require: true },
-      discount: { type: String, require: true },
+      discount: { type: Number, require: true },
 
-      finalPrice: { type: String, require: true },
+      finalPrice: { type: Number, require: true },
 
       prepaymentType: { type: String, require: true },
-      prepaymentValue: { type: String, require: true },
+      prepaymentValue: { type: Number, require: true },
       prepaymentMeasure: { type: String, require: true },
-      prepayment: { type: String, require: true },
+      prepayment: { type: Number, require: true },
 
       method: { type: String, require: true },
     },
