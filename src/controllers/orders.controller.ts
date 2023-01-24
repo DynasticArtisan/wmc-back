@@ -58,7 +58,8 @@ class OrdersController {
       const { orderId } = req.params;
       const orderData = req.body;
       const auth = res.locals.auth as Auth;
-      await ordersService.updateOrder(orderId, orderData, auth);
+      const order = await ordersService.updateOrder(orderId, orderData, auth);
+      res.json(order);
     } catch (e) {
       next(e);
     }
