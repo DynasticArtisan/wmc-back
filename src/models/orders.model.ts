@@ -82,7 +82,7 @@ interface OrderDates {
 
 const schema = new mongoose.Schema<OrderDocument>(
   {
-    index: { type: Number, require: true, unique: true },
+    index: { type: Number, require: true },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Users",
