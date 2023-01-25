@@ -143,7 +143,6 @@ class UsersService {
     }
     return;
   }
-
   async deleteUser(userId: string) {
     const user = await Users.findByIdAndDelete(userId);
     if (!user) {

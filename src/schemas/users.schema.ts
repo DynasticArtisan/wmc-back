@@ -1,5 +1,5 @@
 import { isValidObjectId } from "mongoose";
-import { object, string, TypeOf } from "zod";
+import { date, object, string, TypeOf } from "zod";
 import { UserRegion, UserRole } from "../models/users.model";
 
 export const UserIdSchema = string().refine(
@@ -21,9 +21,9 @@ const UserRegionShema = string().refine(
   }
 );
 const UserContactsSchema = object({
-  email: string(),
-  fullname: string(),
-  phone: string(),
+  email: string().optional(),
+  fullname: string().optional(),
+  phone: string().optional(),
   birthday: string().optional(),
 });
 const UserPasswordSchema = string().refine(
@@ -84,10 +84,10 @@ export const UpdateUserRegionReqSchema = object({
 });
 export type UpdateUserRegionReqType = TypeOf<typeof UpdateUserRegionReqSchema>;
 
-export const UpdateMyContactsReqSchema = object({
+export const UpdateContactsReqSchema = object({
   body: UserContactsSchema,
 });
-export type UpdateMyContactsReqType = TypeOf<typeof UpdateMyContactsReqSchema>;
+export type UpdateContactsReqType = TypeOf<typeof UpdateContactsReqSchema>;
 
 export const UpdateMyPasswordReqSchema = object({
   body: object({

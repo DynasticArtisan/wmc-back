@@ -1,4 +1,4 @@
-import mongoose, { Document, ObjectId } from "mongoose";
+import mongoose, { Date, Document, ObjectId } from "mongoose";
 
 export interface ContactsDocument extends Document {
   userId: ObjectId;
@@ -14,9 +14,9 @@ const schema = new mongoose.Schema<ContactsDocument>({
     ref: "Users",
     required: true,
   },
-  email: { type: String, default: "" },
-  fullname: { type: String, default: "" },
-  phone: { type: String, default: "" },
+  email: { type: String, required: true },
+  fullname: { type: String, required: true },
+  phone: { type: String, required: true },
   birthday: { type: String, default: "" },
 });
 

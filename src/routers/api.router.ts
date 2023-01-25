@@ -5,7 +5,7 @@ import SecureMiddleware from "../middlewares/secure.middleware";
 import validate from "../middlewares/zod.middleware";
 import {
   AuthorizeUserReqSchema,
-  UpdateMyContactsReqSchema,
+  UpdateContactsReqSchema,
   UpdateMyPasswordReqSchema,
 } from "../schemas/users.schema";
 import ordersRouter from "./orders.router";
@@ -25,7 +25,7 @@ apiRouter.get("/contacts", AuthMiddleware, authController.getContactsHandler);
 apiRouter.patch(
   "/contacts",
   AuthMiddleware,
-  validate(UpdateMyContactsReqSchema),
+  validate(UpdateContactsReqSchema),
   authController.updateContactsHandler
 );
 
