@@ -9,18 +9,19 @@ class SessionsService {
   async createSession(login: string, password: string) {
     const user = await usersServices.authorize(login, password);
     const auth = user.AuthDTO();
-    const tokens = this.generateTokens(auth);
+    const accessToken = this.generateAccessToken(auth);
+    const refreshToken = this.generateRefreshToken(auth);
     const session = await Sessions.findOneAndUpdate(
       { userId: user._id },
-      { refreshToken: tokens.refreshToken }
+      { refreshToken }
     );
     if (!session) {
       await Sessions.create({
         userId: user._id,
-        refreshToken: tokens.refreshToken,
+        refreshToken,
       });
     }
-    return { ...tokens, ...auth };
+    return { ...auth, accessToken, refreshToken };
   }
 
   async updateSession(refreshToken: string) {
@@ -28,16 +29,21 @@ class SessionsService {
     if (!tokenUser) {
       throw ApiError.Forbiden("Невалидный токен");
     }
-    const session = await Sessions.findOne({ refreshToken });
+    const session = await Sessions.findOne({
+      userId: tokenUser.userId,
+      refreshToken,
+    });
     if (!session) {
-      throw ApiError.NotFound("Сессия не найдена");
+      throw ApiError.Forbiden("Сессия не найдена");
     }
     const user = await usersServices.getUser(String(session.userId));
     const auth = user.AuthDTO();
-    const tokens = this.generateTokens(auth);
-    session.refreshToken = tokens.refreshToken;
+    const accessToken = this.generateAccessToken(auth);
+    const newRefreshToken = this.generateRefreshToken(auth);
+
+    session.refreshToken = newRefreshToken;
     await session.save();
-    return { ...tokens, ...auth };
+    return { ...auth, accessToken, newRefreshToken };
   }
 
   async deleteSession(refreshToken: string) {
@@ -48,25 +54,46 @@ class SessionsService {
     return true;
   }
 
-  generateTokens(auth: Auth) {
-    const accessToken = jwt.sign(
-      auth,
-      config.get<string>("accessTokenSecret"),
-      {
-        expiresIn: "30s",
-      }
+  async createRecoverSession(identity: string) {
+    const user = await usersServices.identify(identity);
+    const auth = user.AuthDTO();
+    const resetToken = this.generateResetToken(auth);
+    const session = await Sessions.findOneAndUpdate(
+      { userId: user._id },
+      { resetToken }
     );
-    const refreshToken = jwt.sign(
-      auth,
-      config.get<string>("refreshTokenSecret"),
-      {
-        expiresIn: "30d",
-      }
-    );
-    return {
-      accessToken,
-      refreshToken,
-    };
+    if (!session) {
+      await Sessions.create({
+        userId: user._id,
+        resetToken,
+      });
+    }
+    // send mail with token
+    console.log(resetToken);
+    return true;
+  }
+
+  async useRecoverSession(resetToken: string, password: string) {
+    const tokenUser = await this.validateResetToken(resetToken);
+    if (!tokenUser) {
+      throw ApiError.Forbiden("Невалидный токен");
+    }
+    const session = await Sessions.findOne({
+      userId: tokenUser.userId,
+      resetToken,
+    });
+    if (!session) {
+      throw ApiError.Forbiden("Сессия не найдена");
+    }
+    await usersServices.updateUserPassword(tokenUser.userId, password);
+    await session.delete();
+    return true;
+  }
+
+  generateAccessToken(auth: Auth) {
+    return jwt.sign(auth, config.get<string>("accessTokenSecret"), {
+      expiresIn: "30s",
+    });
   }
   async validateAccessToken(accessToken: string): Promise<Auth | null> {
     try {
@@ -78,11 +105,33 @@ class SessionsService {
       return null;
     }
   }
+
+  generateRefreshToken(auth: Auth) {
+    return jwt.sign(auth, config.get<string>("refreshTokenSecret"), {
+      expiresIn: "30d",
+    });
+  }
   async validateRefreshToken(refreshToken: string): Promise<Auth | null> {
     try {
       return jwt.verify(
         refreshToken,
         config.get<string>("refreshTokenSecret")
+      ) as Auth;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  generateResetToken(auth: Auth) {
+    return jwt.sign(auth, config.get<string>("accessTokenSecret"), {
+      expiresIn: "30s",
+    });
+  }
+  async validateResetToken(resetToken: string): Promise<Auth | null> {
+    try {
+      return jwt.verify(
+        resetToken,
+        config.get<string>("accessTokenSecret")
       ) as Auth;
     } catch (e) {
       return null;

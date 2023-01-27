@@ -8,25 +8,26 @@ export const UserIdSchema = string().refine(
     message: "Некорректный ID пользователя",
   }
 );
-const UserRoleShema = string().refine(
+export const UserEmailSchema = string().email();
+export const UserRoleShema = string().refine(
   (role) => Object.values<string>(UserRole).includes(role),
   {
     message: "Некорректная роль",
   }
 );
-const UserRegionShema = string().refine(
+export const UserRegionShema = string().refine(
   (region) => Object.values<string>(UserRegion).includes(region),
   {
     message: "Некорректный регион",
   }
 );
-const UserContactsSchema = object({
+export const UserContactsSchema = object({
   email: string().optional(),
   fullname: string().optional(),
   phone: string().optional(),
   birthday: string().optional(),
 });
-const UserPasswordSchema = string().refine(
+export const UserPasswordSchema = string().refine(
   (pass) =>
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*]).{8,}$/.test(pass),
   "Пароль слишком простой"
@@ -41,7 +42,7 @@ export const GetUserReqSchema = object({
 export type GetUserReqType = TypeOf<typeof GetUserReqSchema>;
 
 export const CreateUserSchema = object({
-  email: string(),
+  email: UserEmailSchema,
   login: string(),
   role: UserRoleShema,
   region: UserRegionShema,
@@ -53,16 +54,6 @@ export const CreateUserReqSchema = object({
   body: CreateUserSchema,
 });
 export type CreateUserReqType = TypeOf<typeof CreateUserReqSchema>;
-
-export const AuthorizeUserSchema = object({
-  login: string(),
-  password: string(),
-});
-export type AuthorizeUserType = TypeOf<typeof AuthorizeUserSchema>;
-export const AuthorizeUserReqSchema = object({
-  body: AuthorizeUserSchema,
-});
-export type AuthorizeUserReqType = TypeOf<typeof AuthorizeUserReqSchema>;
 
 export const UpdateUserRoleReqSchema = object({
   params: object({
@@ -89,10 +80,18 @@ export const UpdateContactsReqSchema = object({
 });
 export type UpdateContactsReqType = TypeOf<typeof UpdateContactsReqSchema>;
 
-export const UpdateMyPasswordReqSchema = object({
+export const ReplacePasswordReqSchema = object({
   body: object({
     password: string(),
     newPassword: UserPasswordSchema,
   }),
 });
-export type UpdateMyPasswordReqType = TypeOf<typeof UpdateMyPasswordReqSchema>;
+export type ReplacePasswordReqType = TypeOf<typeof ReplacePasswordReqSchema>;
+
+export const ReplaceEmailReqSchema = object({
+  body: object({
+    email: UserEmailSchema,
+    password: UserPasswordSchema,
+  }),
+});
+export type ReplaceEmailReqType = TypeOf<typeof ReplaceEmailReqSchema>;

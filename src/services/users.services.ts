@@ -6,10 +6,17 @@ import Contacts, { ContactsDocument } from "../models/contacts.model";
 import mailer from "../mailer";
 
 class UsersService {
-  createPassword() {
-    return generatePassword(8, false, /[\w\W\d\p]/);
+  async identify(identity: string) {
+    const userWithEmail = await Users.findOne({ email: identity });
+    if (userWithEmail) {
+      return userWithEmail;
+    }
+    const userWithLogin = await Users.findOne({ login: identity });
+    if (userWithLogin) {
+      return userWithLogin;
+    }
+    throw ApiError.BadRequest("Пользователь не найден");
   }
-
   async authorize(login: string, password: string) {
     const user = await Users.findOne({ login });
     if (!user) {
@@ -38,7 +45,7 @@ class UsersService {
     if (sameLoginUser) {
       throw ApiError.BadRequest("Пользователь с таким именем уже существует.");
     }
-    const password = this.createPassword();
+    const password = generatePassword(8, false, /[\w\W\d\p]/);
     const mailStatus = await mailer.sendNewUserMail(email, { login, password });
     if (!mailStatus) {
       throw ApiError.BadRequest(
@@ -87,14 +94,16 @@ class UsersService {
     return contacts;
   }
 
-  async updateUserEmail(userId: string, email: string) {
-    const user = await Users.findByIdAndUpdate(userId, { email });
+  async updateUserPassword(userId: string, password: string) {
+    const user = await Users.findById(userId);
     if (!user) {
       throw ApiError.NotFound("Пользователь не найден");
     }
+    user.password = password;
+    await user.save();
     return;
   }
-  async updateUserPassword(
+  async replaceUserPassword(
     userId: string,
     password: string,
     newPassword: string
@@ -109,17 +118,20 @@ class UsersService {
     }
     user.password = newPassword;
     await user.save();
-    return;
+    return true;
   }
-  async resetUserPassword(userId: string, token: string, newPassword: string) {
+  async replaceUserEmail(userId: string, email: string, password: string) {
     const user = await Users.findById(userId);
     if (!user) {
       throw ApiError.NotFound("Пользователь не найден");
     }
-    // validate token
-    user.password = newPassword;
+    const isEqual = await user.comparePassword(password);
+    if (!isEqual) {
+      throw ApiError.Forbiden("Неверный пароль");
+    }
+    user.email = email;
     await user.save();
-    return;
+    return true;
   }
 
   async updateUserRole(userId: string, role: UserRole) {

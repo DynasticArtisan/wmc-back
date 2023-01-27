@@ -36,6 +36,7 @@ export interface OrderDocument extends Document {
   services: OrderService[];
   moreServices: string;
   payment: OrderPayment;
+  payments: OrderSinglePayment[];
   dates: OrderDates;
   comment?: string;
   uploadImage?: string;
@@ -73,6 +74,12 @@ interface OrderPayment {
   prepaymentMeasure: PaymentMeasure;
   prepayment: number;
   method: PaymentMethod;
+}
+
+interface OrderSinglePayment {
+  amount: number;
+  method: PaymentMethod;
+  date: Date;
 }
 
 interface OrderDates {
@@ -123,10 +130,17 @@ const schema = new mongoose.Schema<OrderDocument>(
       prepaymentType: { type: String, require: true },
       prepaymentValue: { type: Number, require: true },
       prepaymentMeasure: { type: String, require: true },
-      prepayment: { type: Number, require: true },
 
+      prepayment: { type: Number, require: true },
       method: { type: String, require: true },
     },
+    payments: [
+      {
+        amount: { type: Number },
+        method: { type: String },
+        date: { type: Date },
+      },
+    ],
     dates: {
       startAt: { type: String, require: true },
       endAt: { type: String, require: true },
