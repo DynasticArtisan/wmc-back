@@ -3,6 +3,7 @@ import ordersController from "../controllers/orders.controller";
 import SecureMiddleware from "../middlewares/secure.middleware";
 import validate from "../middlewares/zod.middleware";
 import {
+  CreateOrderPaymentReqSchema,
   CreateOrderReqSchema,
   GetOrderReqSchema,
   UpdateOrderReqSchema,
@@ -35,6 +36,12 @@ ordersRouter.patch(
   "/:orderId/status",
   validate(UpdateOrderStatusReqSchema),
   ordersController.updateOrderStatus
+);
+
+ordersRouter.post(
+  "/:orderId/payments",
+  validate(CreateOrderPaymentReqSchema),
+  ordersController.createOrderPayment
 );
 
 ordersRouter.delete(

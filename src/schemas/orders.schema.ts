@@ -13,6 +13,11 @@ export const OrderIdSchema = string().refine(
     message: "Некорректный ID заказа",
   }
 );
+export const OrderPaymentSchema = object({
+  amount: number(),
+  method: nativeEnum(PaymentMethod),
+  date: date(),
+});
 
 export const CreateOrderSchema = object({
   type: nativeEnum(OrderType),
@@ -44,11 +49,7 @@ export const CreateOrderSchema = object({
     discount: number(),
     final: number(),
   }),
-  prepayment: object({
-    amount: number(),
-    method: nativeEnum(PaymentMethod),
-    date: date(),
-  }).optional(),
+  prepayment: OrderPaymentSchema.optional(),
   dates: object({
     startAt: string(),
     endAt: string(),
@@ -58,6 +59,16 @@ export const CreateOrderSchema = object({
   signImage: string(),
 });
 export type CreateOrderType = TypeOf<typeof CreateOrderSchema>;
+
+export const CreateOrderPaymentReqSchema = object({
+  params: object({
+    orderId: OrderIdSchema,
+  }),
+  body: OrderPaymentSchema,
+});
+export type CreateOrderPaymentReqType = TypeOf<
+  typeof CreateOrderPaymentReqSchema
+>;
 
 export const UpdateOrderSchema = CreateOrderSchema.omit({
   type: true,

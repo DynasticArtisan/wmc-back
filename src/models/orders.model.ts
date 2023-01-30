@@ -71,7 +71,7 @@ interface OrderPrice {
   final: number;
 }
 
-interface OrderPayment {
+export interface OrderPayment {
   amount: number;
   method: PaymentMethod;
   date: Date;

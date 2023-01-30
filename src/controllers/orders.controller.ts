@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { OrderStatus } from "../models/orders.model";
 import { Auth } from "../models/users.model";
 import {
+  CreateOrderPaymentReqType,
   CreateOrderType,
   GetOrderReqType,
   UpdateOrderReqType,
@@ -84,6 +85,26 @@ class OrdersController {
         auth
       );
       return res.json({ message: "Статус заказа обновлен" });
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async createOrderPayment(
+    req: Request<
+      CreateOrderPaymentReqType["params"],
+      {},
+      CreateOrderPaymentReqType["body"]
+    >,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { orderId } = req.params;
+      const payload = req.body;
+      const auth = res.locals.auth as Auth;
+      await ordersService.createOrderPayment(orderId, payload, auth);
+      res.json({ message: "Платеж добавлен" });
     } catch (e) {
       next(e);
     }

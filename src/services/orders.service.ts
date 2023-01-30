@@ -1,5 +1,5 @@
 import ApiError from "../exceptions";
-import Orders, { OrderStatus } from "../models/orders.model";
+import Orders, { OrderPayment, OrderStatus } from "../models/orders.model";
 import { Auth, UserRole } from "../models/users.model";
 import { CreateOrderType, UpdateOrderType } from "../schemas/orders.schema";
 import sheetsService from "./sheets.service";
@@ -21,6 +21,32 @@ class OrdersService {
     const contacts = await usersServices.getUserContacts(userId);
     await sheetsService.createOrder(order, contacts);
     return order;
+  }
+  async createOrderPayment(
+    orderId: string,
+    payload: OrderPayment,
+    { role, region }: Auth
+  ) {
+    switch (role) {
+      case UserRole.ADMIN:
+        const order = await Orders.findById(orderId);
+        if (!order) {
+          throw ApiError.BadRequest("Заказ не найден");
+        }
+        order.payments.push(payload);
+        await order.save();
+        return true;
+      case UserRole.MANAGER:
+        const regionOrder = await Orders.findOne({ _id: orderId, region });
+        if (!regionOrder) {
+          throw ApiError.BadRequest("Заказ не найден");
+        }
+        regionOrder.payments.push(payload);
+        await regionOrder.save();
+        return true;
+      default:
+        throw ApiError.Forbiden("Недостаточно прав");
+    }
   }
 
   async getOrders({ userId, role, region }: Auth) {
