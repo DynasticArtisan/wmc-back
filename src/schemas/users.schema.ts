@@ -1,5 +1,5 @@
 import { isValidObjectId } from "mongoose";
-import { date, object, string, TypeOf } from "zod";
+import { nativeEnum, object, string, TypeOf } from "zod";
 import { UserRegion, UserRole } from "../models/users.model";
 
 export const UserIdSchema = string().refine(
@@ -9,29 +9,24 @@ export const UserIdSchema = string().refine(
   }
 );
 export const UserEmailSchema = string().email();
-export const UserRoleShema = string().refine(
-  (role) => Object.values<string>(UserRole).includes(role),
-  {
-    message: "Некорректная роль",
-  }
-);
-export const UserRegionShema = string().refine(
-  (region) => Object.values<string>(UserRegion).includes(region),
-  {
-    message: "Некорректный регион",
-  }
-);
+
+export const UserRoleShema = nativeEnum(UserRole);
+
+export const UserRegionShema = nativeEnum(UserRegion);
+
 export const UserContactsSchema = object({
-  email: string().optional(),
+  email: string().email().optional(),
   fullname: string().optional(),
   phone: string().optional(),
   birthday: string().optional(),
 });
+
 export const UserPasswordSchema = string().refine(
   (pass) =>
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*]).{8,}$/.test(pass),
   "Пароль слишком простой"
 );
+
 export type UserContactsType = TypeOf<typeof UserContactsSchema>;
 
 export const GetUserReqSchema = object({
@@ -74,24 +69,3 @@ export const UpdateUserRegionReqSchema = object({
   }),
 });
 export type UpdateUserRegionReqType = TypeOf<typeof UpdateUserRegionReqSchema>;
-
-export const UpdateContactsReqSchema = object({
-  body: UserContactsSchema,
-});
-export type UpdateContactsReqType = TypeOf<typeof UpdateContactsReqSchema>;
-
-export const ReplacePasswordReqSchema = object({
-  body: object({
-    password: string(),
-    newPassword: UserPasswordSchema,
-  }),
-});
-export type ReplacePasswordReqType = TypeOf<typeof ReplacePasswordReqSchema>;
-
-export const ReplaceEmailReqSchema = object({
-  body: object({
-    email: UserEmailSchema,
-    password: UserPasswordSchema,
-  }),
-});
-export type ReplaceEmailReqType = TypeOf<typeof ReplaceEmailReqSchema>;

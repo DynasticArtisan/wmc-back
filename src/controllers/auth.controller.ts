@@ -4,12 +4,10 @@ import {
   AuthorizeReqType,
   ForgotPasswordReqType,
   ResetPasswordReqType,
-} from "../schemas/auth.schema";
-import {
   ReplaceEmailReqType,
   ReplacePasswordReqType,
-  UserContactsType,
-} from "../schemas/users.schema";
+  UpdateContactsReqType,
+} from "../schemas/auth.schema";
 import sessionsService from "../services/sessions.service";
 import usersServices from "../services/users.services";
 
@@ -134,7 +132,7 @@ class AuthController {
   }
 
   async updateContactsHandler(
-    req: Request<{}, {}, UserContactsType>,
+    req: Request<{}, {}, UpdateContactsReqType["body"]>,
     res: Response,
     next: NextFunction
   ) {

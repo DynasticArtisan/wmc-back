@@ -35,6 +35,7 @@ usersRouter.patch(
   validate(UpdateUserRoleReqSchema),
   usersController.updateUserRoleHandler
 );
+
 usersRouter.patch(
   "/:userId/region",
   validate(UpdateUserRegionReqSchema),

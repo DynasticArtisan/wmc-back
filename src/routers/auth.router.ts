@@ -2,15 +2,14 @@ import { Router } from "express";
 import validate from "../middlewares/zod.middleware";
 import authController from "../controllers/auth.controller";
 import AuthMiddleware from "../middlewares/auth.middleware";
-import {
-  ReplaceEmailReqSchema,
-  ReplacePasswordReqSchema,
-  UpdateContactsReqSchema,
-} from "../schemas/users.schema";
+
 import {
   AuthorizeReqSchema,
   ForgotPasswordReqSchema,
   ResetPasswordReqSchema,
+  ReplaceEmailReqSchema,
+  ReplacePasswordReqSchema,
+  UpdateContactsReqSchema,
 } from "../schemas/auth.schema";
 
 const authRouter = Router();
