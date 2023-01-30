@@ -18,9 +18,9 @@ class AuthController {
     next: NextFunction
   ) {
     try {
-      const { login, password } = req.body;
+      const { identity, password } = req.body;
       const { refreshToken, ...session } = await sessionsService.createSession(
-        login,
+        identity,
         password
       );
       return res

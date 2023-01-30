@@ -7,8 +7,12 @@ import { Auth } from "../models/users.model";
 import mailer from "../mailer";
 
 class SessionsService {
-  async createSession(login: string, password: string) {
-    const user = await usersServices.authorize(login, password);
+  async createSession(identity: string, password: string) {
+    const user = await usersServices.identify(identity);
+    const isValid = await user.comparePassword(password);
+    if (!isValid) {
+      throw ApiError.BadRequest("Неверные логин или пароль");
+    }
     const auth = user.AuthDTO();
     const accessToken = this.generateAccessToken(auth);
     const refreshToken = this.generateRefreshToken(auth);

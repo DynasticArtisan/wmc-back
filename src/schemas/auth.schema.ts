@@ -7,7 +7,7 @@ import {
 
 export const AuthorizeReqSchema = object({
   body: object({
-    login: string(),
+    identity: string(),
     password: string(),
   }),
 });

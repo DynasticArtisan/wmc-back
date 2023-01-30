@@ -17,17 +17,6 @@ class UsersService {
     }
     throw ApiError.BadRequest("Пользователь не найден");
   }
-  async authorize(login: string, password: string) {
-    const user = await Users.findOne({ login });
-    if (!user) {
-      throw ApiError.BadRequest("Неверные логин или пароль");
-    }
-    const isEqual = await user.comparePassword(password);
-    if (!isEqual) {
-      throw ApiError.BadRequest("Неверные логин или пароль");
-    }
-    return user;
-  }
 
   async createUser({
     email,
