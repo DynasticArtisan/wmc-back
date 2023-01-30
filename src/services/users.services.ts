@@ -46,7 +46,7 @@ class UsersService {
       throw ApiError.BadRequest("Пользователь с таким именем уже существует.");
     }
     const password = generatePassword(8, false, /[\w\W\d\p]/);
-    const mailStatus = await mailer.sendNewUserMail(email, { login, password });
+    const mailStatus = await mailer.createUserMail(email, { login, password });
     if (!mailStatus) {
       throw ApiError.BadRequest(
         "Некорректный email, не удалось отправить письмо"

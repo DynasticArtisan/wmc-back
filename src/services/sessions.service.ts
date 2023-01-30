@@ -4,6 +4,7 @@ import Sessions from "../models/sessions.model";
 import ApiError from "../exceptions";
 import usersServices from "./users.services";
 import { Auth } from "../models/users.model";
+import mailer from "../mailer";
 
 class SessionsService {
   async createSession(login: string, password: string) {
@@ -58,6 +59,16 @@ class SessionsService {
     const user = await usersServices.identify(identity);
     const auth = user.AuthDTO();
     const resetToken = this.generateResetToken(auth);
+    const resetLink =
+      config.get<string>("siteUrl") +
+      "/auth/newPassword?resetToken=" +
+      resetToken;
+    const mailStatus = await mailer.recoverPasswordMail(user.email, resetLink);
+    if (!mailStatus) {
+      throw ApiError.BadRequest(
+        "Некорректный email, не удалось отправить письмо"
+      );
+    }
     const session = await Sessions.findOneAndUpdate(
       { userId: user._id },
       { resetToken }
@@ -68,8 +79,6 @@ class SessionsService {
         resetToken,
       });
     }
-    // send mail with token
-    console.log(resetToken);
     return true;
   }
 

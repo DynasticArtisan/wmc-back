@@ -1,12 +1,12 @@
 import { Router } from "express";
 import validate from "../middlewares/zod.middleware";
+import authController from "../controllers/auth.controller";
+import AuthMiddleware from "../middlewares/auth.middleware";
 import {
   ReplaceEmailReqSchema,
   ReplacePasswordReqSchema,
   UpdateContactsReqSchema,
 } from "../schemas/users.schema";
-import authController from "../controllers/auth.controller";
-import AuthMiddleware from "../middlewares/auth.middleware";
 import {
   AuthorizeReqSchema,
   ForgotPasswordReqSchema,
