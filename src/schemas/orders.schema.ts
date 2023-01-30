@@ -1,11 +1,10 @@
 import { isValidObjectId } from "mongoose";
-import { array, number, object, string, TypeOf } from "zod";
+import { array, date, number, object, string, TypeOf, nativeEnum } from "zod";
 import {
   OrderStatus,
   OrderType,
   PaymentMeasure,
   PaymentMethod,
-  PrepaymentType,
 } from "../models/orders.model";
 
 export const OrderIdSchema = string().refine(
@@ -14,18 +13,9 @@ export const OrderIdSchema = string().refine(
     message: "Некорректный ID заказа",
   }
 );
-export const GetOrderReqSchema = object({
-  params: object({
-    orderId: OrderIdSchema,
-  }),
-});
-export type GetOrderReqType = TypeOf<typeof GetOrderReqSchema>;
 
 export const CreateOrderSchema = object({
-  type: string().refine(
-    (type) => Object.values<string>(OrderType).includes(type),
-    "Некорректный тип заказа"
-  ),
+  type: nativeEnum(OrderType),
   information: object({
     client: string(),
     clientEmail: string().optional(),
@@ -47,30 +37,18 @@ export const CreateOrderSchema = object({
     })
   ),
   moreServices: string().optional(),
-  payment: object({
-    totalPrice: number(),
+  price: object({
+    total: number(),
     discountValue: number(),
-    discountMeasure: string().refine(
-      (measure) => Object.values<string>(PaymentMeasure).includes(measure),
-      "Некорректные еденицы измерения"
-    ),
+    discountMeasure: nativeEnum(PaymentMeasure),
     discount: number(),
-    finalPrice: number(),
-    prepaymentType: string().refine(
-      (type) => Object.values<string>(PrepaymentType).includes(type),
-      "Некорректный тип предолаты"
-    ),
-    prepaymentValue: number(),
-    prepaymentMeasure: string().refine(
-      (measure) => Object.values<string>(PaymentMeasure).includes(measure),
-      "Некорректные еденицы измерения"
-    ),
-    prepayment: number(),
-    method: string().refine(
-      (method) => Object.values<string>(PaymentMethod).includes(method),
-      "Некорректный метод оплаты"
-    ),
+    final: number(),
   }),
+  prepayment: object({
+    amount: number(),
+    method: nativeEnum(PaymentMethod),
+    date: date(),
+  }).optional(),
   dates: object({
     startAt: string(),
     endAt: string(),
@@ -84,8 +62,16 @@ export type CreateOrderType = TypeOf<typeof CreateOrderSchema>;
 export const UpdateOrderSchema = CreateOrderSchema.omit({
   type: true,
   signImage: true,
+  prepayment: true,
 });
 export type UpdateOrderType = TypeOf<typeof UpdateOrderSchema>;
+
+export const GetOrderReqSchema = object({
+  params: object({
+    orderId: OrderIdSchema,
+  }),
+});
+export type GetOrderReqType = TypeOf<typeof GetOrderReqSchema>;
 
 export const CreateOrderReqSchema = object({
   body: CreateOrderSchema,
@@ -104,10 +90,7 @@ export const UpdateOrderStatusReqSchema = object({
     orderId: OrderIdSchema,
   }),
   body: object({
-    status: string().refine(
-      (status) => Object.values<string>(OrderStatus).includes(status),
-      "Некорректный статус"
-    ),
+    status: nativeEnum(OrderStatus),
   }),
 });
 export type UpdateOrderStatusReqType = TypeOf<

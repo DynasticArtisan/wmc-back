@@ -6,12 +6,20 @@ import sheetsService from "./sheets.service";
 import usersServices from "./users.services";
 
 class OrdersService {
-  async createOrder(userId: string, region: string, data: CreateOrderType) {
-    const lastOrder = await Orders.findOne({ region }).sort("index");
+  async createOrder(
+    userId: string,
+    region: string,
+    { prepayment, ...orderData }: CreateOrderType
+  ) {
+    const lastOrder = await Orders.findOne({ region }).sort("-index");
     const index = lastOrder ? lastOrder.index + 1 : 1;
-    const order = await Orders.create({ userId, region, index, ...data });
+    const order = await Orders.create({ userId, region, index, ...orderData });
+    if (prepayment) {
+      order.payments.push(prepayment);
+      await order.save();
+    }
     const contacts = await usersServices.getUserContacts(userId);
-    await sheetsService.writeOrder(order, contacts);
+    await sheetsService.createOrder(order, contacts);
     return order;
   }
 

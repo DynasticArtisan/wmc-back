@@ -13,10 +13,10 @@ enum SheetHeaders {
   orderDeceased = "Адрес Захоронения,ФИО умершего",
   orderGrave = "УЧАСТОК/РЯД/МЕСТО",
   orderCreator = "МАП",
-  orderSumm = "Общая сумма заказа",
+  orderPrice = "Общая сумма заказа",
   orderServices = "производимые работы",
-  orderPayment = "Аванс , доплата",
-  orderPaydate = "Дата внесения денег",
+  orderPayments = "Аванс , доплата",
+  orderPaydates = "Дата внесения денег",
   orderDept = "Сумма долга",
   rawCost = "ЦПА+РАСХОДНИК",
   materialsCost = "себестоимость ограды+скамейка+стол+плитка+крошка",
@@ -40,7 +40,7 @@ class SheetsService {
     this.sheets.useServiceAccountAuth(credentials);
   }
 
-  async writeOrder(order: OrderDocument, creator: ContactsDocument) {
+  async createOrder(order: OrderDocument, creator: ContactsDocument) {
     const orderDate = new Date().toLocaleDateString();
     const orderNumber = order.region + order.index;
     const orderClient = `
@@ -63,7 +63,7 @@ class SheetsService {
         ${creator.email}\n
         ${creator.phone}
       `;
-    const orderSumm = order.payment.finalPrice;
+    const orderPrice = order.price.final;
     const orderServices = order.services.reduce(
       (string, { title, quantity, measurement, cost, price }) => {
         return (
@@ -78,7 +78,15 @@ class SheetsService {
       },
       ""
     );
-    const orderPayment = order.payment.prepayment;
+    const orderPayments = order.payments
+      .map((payment) => "р." + payment.amount)
+      .join("\n");
+    const orderPaydates = order.payments
+      .map((payment) => payment.date)
+      .join("\n");
+    const orderDept =
+      orderPrice -
+      order.payments.reduce((summ, payment) => summ + payment.amount, 0);
     const newRow = {
       [SheetHeaders.orderDate]: orderDate,
       [SheetHeaders.orderNumber]: orderNumber,
@@ -86,10 +94,11 @@ class SheetsService {
       [SheetHeaders.orderDeceased]: orderDeceased,
       [SheetHeaders.orderGrave]: orderGrave,
       [SheetHeaders.orderCreator]: orderCreator,
-      [SheetHeaders.orderSumm]: orderSumm,
+      [SheetHeaders.orderPrice]: orderPrice,
       [SheetHeaders.orderServices]: orderServices,
-      [SheetHeaders.orderPayment]: orderPayment,
-      [SheetHeaders.orderPaydate]: orderDate,
+      [SheetHeaders.orderPayments]: orderPayments,
+      [SheetHeaders.orderPaydates]: orderPaydates,
+      [SheetHeaders.orderDept]: orderDept,
     };
     await this.sheets.loadInfo();
     const sheet = this.sheets.sheetsByIndex[0];
@@ -99,16 +108,6 @@ class SheetsService {
     sheet.getCellByA1("G" + rowIndex).numberFormat = {
       type: "CURRENCY",
       pattern: "[$р.-419]#,##0",
-    };
-    // доплата/аванс
-    sheet.getCellByA1("L" + rowIndex).numberFormat = {
-      type: "CURRENCY",
-      pattern: "[$р.-419]#,##0",
-    };
-    // дата внесения доплата/аванс
-    sheet.getCellByA1("M" + rowIndex).numberFormat = {
-      type: "DATE",
-      pattern: "dd.mm.yyyy",
     };
     // ЦПА+РАСХОДНИК
     sheet.getCellByA1("H" + rowIndex).formula = `=G${rowIndex}*0,125`;
@@ -120,14 +119,26 @@ class SheetsService {
     sheet.getCellByA1("N" + rowIndex).formula = `=ПРОИЗВЕД(0,2;I${rowIndex})`;
     // Оплата установщикам (20%)
     sheet.getCellByA1("Q" + rowIndex).formula = `=ПРОИЗВЕД(0,2;I${rowIndex})`;
-    // Сумма долга
-    sheet.getCellByA1(
-      "R" + rowIndex
-    ).formula = `=СУММ(G${rowIndex}-L${rowIndex})`;
     // Выручка
     sheet.getCellByA1(
       "S" + rowIndex
     ).formula = `=СУММ(G${rowIndex}-J${rowIndex}-N${rowIndex}-O${rowIndex}-Q${rowIndex})`;
+
+    // доплата/аванс
+    // sheet.getCellByA1("L" + rowIndex).numberFormat = {
+    //   type: "CURRENCY",
+    //   pattern: "[$р.-419]#,##0",
+    // };
+    // дата внесения доплата/аванс
+    // sheet.getCellByA1("M" + rowIndex).numberFormat = {
+    //   type: "DATE",
+    //   pattern: "dd.mm.yyyy",
+    // };
+    // Сумма долга
+    // sheet.getCellByA1(
+    //   "R" + rowIndex
+    // ).formula = `=СУММ(G${rowIndex}-L${rowIndex})`;
+
     await sheet.saveUpdatedCells();
     return rowIndex;
   }
@@ -149,7 +160,7 @@ class SheetsService {
       Ряд: ${order.information.graveRow}\n
       Место: ${order.information.gravePlace}
     `;
-    const orderSumm = order.payment.finalPrice;
+    const orderPrice = order.price.final;
     const orderServices = order.services.reduce(
       (string, { title, quantity, measurement, cost, price }) => {
         return (
@@ -164,8 +175,15 @@ class SheetsService {
       },
       ""
     );
-    const orderPayment = order.payment.prepayment;
-
+    const orderPayments = order.payments
+      .map((payment) => "р." + payment.amount)
+      .join("\n");
+    const orderPaydates = order.payments
+      .map((payment) => payment.date)
+      .join("\n");
+    const orderDept =
+      orderPrice -
+      order.payments.reduce((summ, payment) => summ + payment.amount, 0);
     await this.sheets.loadInfo();
     const rows = await this.sheets.sheetsByIndex[0].getRows();
     const row = rows.find(
@@ -175,9 +193,11 @@ class SheetsService {
       row[SheetHeaders.orderClient] = orderClient;
       row[SheetHeaders.orderDeceased] = orderDeceased;
       row[SheetHeaders.orderGrave] = orderGrave;
-      row[SheetHeaders.orderSumm] = orderSumm;
+      row[SheetHeaders.orderPrice] = orderPrice;
       row[SheetHeaders.orderServices] = orderServices;
-      row[SheetHeaders.orderPayment] = orderPayment;
+      row[SheetHeaders.orderPayments] = orderPayments;
+      row[SheetHeaders.orderPaydates] = orderPaydates;
+      row[SheetHeaders.orderDept] = orderDept;
       await row.save();
       return true;
     }

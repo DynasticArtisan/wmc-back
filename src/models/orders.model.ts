@@ -35,9 +35,9 @@ export interface OrderDocument extends Document {
   information: OrderInformation;
   services: OrderService[];
   moreServices: string;
-  payment: OrderPayment;
-  payments: OrderSinglePayment[];
   dates: OrderDates;
+  price: OrderPrice;
+  payments: OrderPayment[];
   comment?: string;
   uploadImage?: string;
   signImage: string;
@@ -63,20 +63,15 @@ interface OrderService {
   price: number;
 }
 
-interface OrderPayment {
-  totalPrice: number;
+interface OrderPrice {
+  total: number;
   discountValue: number;
   discountMeasure: PaymentMeasure;
   discount: number;
-  finalPrice: number;
-  prepaymentType: PrepaymentType;
-  prepaymentValue: number;
-  prepaymentMeasure: PaymentMeasure;
-  prepayment: number;
-  method: PaymentMethod;
+  final: number;
 }
 
-interface OrderSinglePayment {
+interface OrderPayment {
   amount: number;
   method: PaymentMethod;
   date: Date;
@@ -118,21 +113,12 @@ const schema = new mongoose.Schema<OrderDocument>(
       },
     ],
     moreServices: { type: String },
-    payment: {
-      totalPrice: { type: Number, require: true },
-
+    price: {
+      total: { type: Number, require: true },
       discountValue: { type: Number, require: true },
       discountMeasure: { type: String, require: true },
       discount: { type: Number, require: true },
-
-      finalPrice: { type: Number, require: true },
-
-      prepaymentType: { type: String, require: true },
-      prepaymentValue: { type: Number, require: true },
-      prepaymentMeasure: { type: String, require: true },
-
-      prepayment: { type: Number, require: true },
-      method: { type: String, require: true },
+      final: { type: Number, require: true },
     },
     payments: [
       {
