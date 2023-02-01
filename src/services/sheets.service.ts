@@ -43,41 +43,17 @@ class SheetsService {
   async createOrder(order: OrderDocument, creator: ContactsDocument) {
     const orderDate = new Date().toLocaleDateString();
     const orderNumber = order.region + order.index;
-    const orderClient = `
-      ${order.information.client}\n
-      ${order.information.clientPhone}\n
-      ${order.information.clientAddress}\n
-      ${order.information.clientEmail}
-    `;
+    const orderClient = order.information.client;
     const orderDeceased = `
       ${order.information.cemetery}\n
       ${order.information.deceased}
     `;
-    const orderGrave = `
-      Участок: ${order.information.graveDistrict}\n
-      Ряд: ${order.information.graveRow}\n
-      Место: ${order.information.gravePlace}
-    `;
-    const orderCreator = `
-        ${creator.fullname}\n
-        ${creator.email}\n
-        ${creator.phone}
-      `;
+    const orderGrave = `${order.information.graveDistrict}/${order.information.graveRow}/${order.information.gravePlace}`;
+    const orderCreator = creator.fullname;
     const orderPrice = order.price.final;
-    const orderServices = order.services.reduce(
-      (string, { title, quantity, measurement, cost, price }) => {
-        return (
-          string +
-          `
-            Услуга: "${title}";\n
-            Размер: ${quantity} ${measurement}\n
-            Цена за ед: ${cost}руб;\n
-            Цена: ${price}руб;\n\n
-          `
-        );
-      },
-      ""
-    );
+    const orderServices = order.services
+      .map(({ title, price }) => `${title} р.${price}`)
+      .join("\n");
     const orderPayments = order.payments
       .map((payment) => "р." + payment.amount)
       .join("\n");
@@ -145,36 +121,16 @@ class SheetsService {
 
   async updateOrder(order: OrderDocument) {
     const orderNumber = order.region + order.index;
-    const orderClient = `
-      ${order.information.client}\n
-      ${order.information.clientPhone}\n
-      ${order.information.clientAddress}\n
-      ${order.information.clientEmail}
-    `;
+    const orderClient = order.information.client;
     const orderDeceased = `
-      ${order.information.cemetery}\n
+      ${order.information.cemetery}
       ${order.information.deceased}
     `;
-    const orderGrave = `
-      Участок: ${order.information.graveDistrict}\n
-      Ряд: ${order.information.graveRow}\n
-      Место: ${order.information.gravePlace}
-    `;
+    const orderGrave = `${order.information.graveDistrict}/${order.information.graveRow}/${order.information.gravePlace}`;
     const orderPrice = order.price.final;
-    const orderServices = order.services.reduce(
-      (string, { title, quantity, measurement, cost, price }) => {
-        return (
-          string +
-          `
-          Услуга: "${title}";\n
-          Размер: ${quantity} ${measurement}\n
-          Цена за ед: ${cost}руб;\n
-          Цена: ${price}руб;\n\n
-        `
-        );
-      },
-      ""
-    );
+    const orderServices = order.services
+      .map(({ title, price }) => `${title} р.${price}`)
+      .join("\n");
     const orderPayments = order.payments
       .map((payment) => "р." + payment.amount)
       .join("\n");
