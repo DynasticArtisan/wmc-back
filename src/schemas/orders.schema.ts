@@ -1,5 +1,14 @@
 import { isValidObjectId } from "mongoose";
-import { array, date, number, object, string, TypeOf, nativeEnum } from "zod";
+import {
+  array,
+  date,
+  number,
+  object,
+  string,
+  TypeOf,
+  nativeEnum,
+  coerce,
+} from "zod";
 import {
   OrderStatus,
   OrderType,
@@ -16,7 +25,7 @@ export const OrderIdSchema = string().refine(
 export const OrderPaymentSchema = object({
   amount: number(),
   method: nativeEnum(PaymentMethod),
-  date: date(),
+  date: coerce.date(),
 });
 
 export const CreateOrderSchema = object({

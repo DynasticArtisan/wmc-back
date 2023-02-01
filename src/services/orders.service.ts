@@ -35,7 +35,8 @@ class OrdersService {
         }
         order.payments.push(payload);
         await order.save();
-        return true;
+        await sheetsService.updateOrder(order);
+        return order;
       case UserRole.MANAGER:
         const regionOrder = await Orders.findOne({ _id: orderId, region });
         if (!regionOrder) {
@@ -43,7 +44,8 @@ class OrdersService {
         }
         regionOrder.payments.push(payload);
         await regionOrder.save();
-        return true;
+        await sheetsService.updateOrder(regionOrder);
+        return regionOrder;
       default:
         throw ApiError.Forbiden("Недостаточно прав");
     }

@@ -79,7 +79,7 @@ class OrdersController {
       const { orderId } = req.params;
       const { status } = req.body;
       const auth = res.locals.auth as Auth;
-      await ordersService.updateOrderStatus(
+      const order = await ordersService.updateOrderStatus(
         orderId,
         status as OrderStatus,
         auth
@@ -103,8 +103,12 @@ class OrdersController {
       const { orderId } = req.params;
       const payload = req.body;
       const auth = res.locals.auth as Auth;
-      await ordersService.createOrderPayment(orderId, payload, auth);
-      res.json({ message: "Платеж добавлен" });
+      const order = await ordersService.createOrderPayment(
+        orderId,
+        payload,
+        auth
+      );
+      res.json(order);
     } catch (e) {
       next(e);
     }
