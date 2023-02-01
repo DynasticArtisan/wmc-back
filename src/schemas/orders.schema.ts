@@ -58,7 +58,7 @@ export const CreateOrderSchema = object({
     discount: number(),
     final: number(),
   }),
-  prepayment: OrderPaymentSchema.optional(),
+  prepayment: OrderPaymentSchema.nullable(),
   dates: object({
     startAt: string(),
     endAt: string(),

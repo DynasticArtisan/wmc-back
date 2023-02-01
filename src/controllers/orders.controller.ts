@@ -103,12 +103,8 @@ class OrdersController {
       const { orderId } = req.params;
       const payload = req.body;
       const auth = res.locals.auth as Auth;
-      const order = await ordersService.createOrderPayment(
-        orderId,
-        payload,
-        auth
-      );
-      res.json(order);
+      await ordersService.createOrderPayment(orderId, payload, auth);
+      res.json({ message: "😸 😸 😸" });
     } catch (e) {
       next(e);
     }

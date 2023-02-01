@@ -82,7 +82,7 @@ class SheetsService {
       .map((payment) => "р." + payment.amount)
       .join("\n");
     const orderPaydates = order.payments
-      .map((payment) => payment.date)
+      .map((payment) => payment.date.toLocaleDateString())
       .join("\n");
     const orderDept =
       orderPrice -
@@ -179,7 +179,7 @@ class SheetsService {
       .map((payment) => "р." + payment.amount)
       .join("\n");
     const orderPaydates = order.payments
-      .map((payment) => payment.date)
+      .map((payment) => payment.date.toLocaleDateString())
       .join("\n");
     const orderDept =
       orderPrice -
