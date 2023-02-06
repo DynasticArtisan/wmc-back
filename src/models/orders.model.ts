@@ -4,6 +4,9 @@ import { UserRegion } from "./users.model";
 export enum OrderStatus {
   active = "В работе",
   done = "Выполнен",
+  payment = "Оплачен",
+  donePayment = "Выполнен и оплачен",
+  archive = "В архиве",
 }
 
 export enum OrderType {
